@@ -5,7 +5,14 @@ import Footer from './components/Layout/Footer'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Categories from './pages/Categories'
+import Analytics from './pages/Analytics'
+import Budgets from './pages/Budgets'
+import Settings from './pages/Settings'
 import './styles/dashboard.css'
+import './styles/categories.css'
+import './styles/analytics.css'
+import './styles/budgets.css'
+import './styles/settings.css'
 
 function App() {
   return (
@@ -18,9 +25,9 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/categories" element={<Categories />} />
-            <Route path="/analytics" element={<div style={{ padding: '40px', textAlign: 'center' }}>Аналитика (скоро)</div>} />
-            <Route path="/budgets" element={<div style={{ padding: '40px', textAlign: 'center' }}>Бюджеты (скоро)</div>} />
-            <Route path="/settings" element={<div style={{ padding: '40px', textAlign: 'center' }}>Настройки (скоро)</div>} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/budgets" element={<Budgets />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
           <Footer />
         </main>

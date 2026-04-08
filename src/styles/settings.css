@@ -1,0 +1,468 @@
+/* Settings Page Styles */
+
+.settings-page {
+    padding: 28px 32px;
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #FFFFFF 0%, #148a8c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Settings Tabs */
+.settings-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.settings-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.settings-tab:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.settings-tab.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 15px rgba(17, 100, 102, 0.3);
+}
+
+.tab-icon {
+    font-size: 18px;
+}
+
+
+.input-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Settings Card */
+.settings-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.settings-card h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Settings Sections */
+.settings-section {
+    margin-bottom: 28px;
+}
+
+.settings-section label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.settings-section input,
+.settings-section select {
+    width: 100%;
+    max-width: 400px;
+    background: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.settings-section input:focus,
+.settings-section select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Avatar Section */
+.avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.avatar-preview {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+}
+
+/* Setting Row (for toggles) */
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.setting-info label {
+    margin-bottom: 4px;
+}
+
+.setting-description {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.setting-sub {
+    margin-top: 12px;
+    margin-left: 24px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    width: 52px;
+    height: 28px;
+    background: var(--bg-hover);
+    border-radius: 28px;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+    padding: 0;
+}
+
+.toggle-switch.active {
+    background: var(--primary);
+}
+
+.toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.toggle-switch.active .toggle-knob {
+    transform: translateX(24px);
+}
+
+/* Radio Group */
+.radio-group {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.radio-label input {
+    width: auto;
+    cursor: pointer;
+}
+
+/* Preview Section */
+.preview-section {
+    background: var(--bg-dark);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin: 20px 0;
+}
+
+.preview-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--primary-light);
+    margin-top: 8px;
+}
+
+/* Export Buttons */
+.export-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.import-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Danger Zone */
+.danger-zone {
+    margin-top: 32px;
+    background: rgba(255, 107, 107, 0.05);
+    border-left: 3px solid var(--danger);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.danger-zone-header {
+    padding: 16px 20px;
+    background: rgba(255, 107, 107, 0.1);
+    font-weight: 600;
+    color: var(--danger);
+}
+
+.danger-zone-content {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.danger-info strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.danger-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid var(--danger);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    color: var(--danger);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* Color Picker */
+.color-picker-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.color-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.active {
+    border-color: white;
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.color-option.custom {
+    background: var(--bg-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--text-secondary);
+}
+
+/* Density Preview */
+.density-group {
+    gap: 32px;
+}
+
+.density-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.density-preview span {
+    background: var(--primary-light);
+    border-radius: 2px;
+}
+
+.density-preview.compact span {
+    height: 4px;
+    width: 30px;
+}
+
+.density-preview.compact span:nth-child(2) {
+    width: 20px;
+}
+
+.density-preview.comfortable span {
+    height: 6px;
+    width: 40px;
+}
+
+.density-preview.comfortable span:nth-child(2) {
+    width: 30px;
+}
+
+.density-preview.spacious span {
+    height: 8px;
+    width: 50px;
+}
+
+.density-preview.spacious span:nth-child(2) {
+    width: 40px;
+}
+
+.radio-label.density {
+    flex-direction: column;
+    text-align: center;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.radio-label.density.active {
+    background: rgba(17, 100, 102, 0.1);
+    border: 1px solid rgba(17, 100, 102, 0.3);
+}
+
+/* Settings Actions */
+.settings-actions {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Delete Modal */
+.delete-modal {
+    max-width: 450px;
+}
+
+.modal-body {
+    padding: 20px 24px;
+}
+
+.modal-body p {
+    margin-bottom: 16px;
+    color: var(--text-secondary);
+}
+
+.modal-body .warning-text {
+    color: var(--danger);
+    font-size: 13px;
+}
+
+.confirm-input {
+    margin-top: 20px;
+}
+
+.confirm-input label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.confirm-input input {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: monospace;
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .settings-page {
+        padding: 20px;
+    }
+    
+    .settings-tabs {
+        flex-direction: column;
+    }
+    
+    .settings-tab {
+        justify-content: center;
+    }
+    
+    .settings-card {
+        padding: 20px;
+    }
+    
+    .avatar-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .danger-zone-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .settings-actions {
+        justify-content: stretch;
+    }
+    
+    .settings-actions button {
+        width: 100%;
+    }
+}
