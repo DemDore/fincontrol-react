@@ -20,3 +20,27 @@ export function getTransactions() {
 export function saveTransactions(transactions) {
     localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
 }
+
+export function addTransaction(transaction) {
+    const transactions = getTransactions();
+    const newId = Math.max(0, ...transactions.map(t => t.id), 0) + 1;
+    const newTransaction = { ...transaction, id: newId };
+    transactions.unshift(newTransaction);
+    saveTransactions(transactions);
+    return newTransaction;
+}
+
+export function updateTransaction(id, updatedData) {
+    const transactions = getTransactions();
+    const index = transactions.findIndex(t => t.id === id);
+    if (index !== -1) {
+        transactions[index] = { ...transactions[index], ...updatedData };
+        saveTransactions(transactions);
+    }
+}
+
+export function deleteTransaction(id) {
+    const transactions = getTransactions();
+    const filtered = transactions.filter(t => t.id !== id);
+    saveTransactions(filtered);
+}

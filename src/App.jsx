@@ -3,6 +3,8 @@ import Sidebar from './components/Layout/Sidebar'
 import Header from './components/Layout/Header'
 import Footer from './components/Layout/Footer'
 import Dashboard from './pages/Dashboard'
+import Transactions from './pages/Transactions'
+import Categories from './pages/Categories'
 import './styles/dashboard.css'
 
 function App() {
@@ -14,8 +16,8 @@ function App() {
           <Header />
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/transactions" element={<div style={{ padding: '40px', textAlign: 'center' }}>Страница транзакций (скоро)</div>} />
-            <Route path="/categories" element={<div style={{ padding: '40px', textAlign: 'center' }}>Категории (скоро)</div>} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/analytics" element={<div style={{ padding: '40px', textAlign: 'center' }}>Аналитика (скоро)</div>} />
             <Route path="/budgets" element={<div style={{ padding: '40px', textAlign: 'center' }}>Бюджеты (скоро)</div>} />
             <Route path="/settings" element={<div style={{ padding: '40px', textAlign: 'center' }}>Настройки (скоро)</div>} />
