@@ -1,5 +1,13 @@
-export const expenseCategories = ['🍔 Еда', '🚗 Транспорт', '🏠 Жильё', '🛍️ Шопинг', '🎮 Развлечения', '💊 Здоровье', '📚 Образование'];
-export const incomeCategories = ['💼 Зарплата', '📈 Инвестиции', '🎁 Подарки', '💸 Фриланс'];
+// Категории для расходов (для обратной совместимости)
+export const expenseCategories = [
+    '🍔 Еда', '🚗 Транспорт', '🏠 Жильё', '🛍️ Шопинг', 
+    '🎮 Развлечения', '💊 Здоровье', '📚 Образование'
+];
+
+// Категории для доходов (для обратной совместимости)
+export const incomeCategories = [
+    '💼 Зарплата', '📈 Инвестиции', '🎁 Подарки', '💸 Фриланс'
+];
 
 export const categoryColors = {
     '🍔 Еда': '#116466',
@@ -14,3 +22,8 @@ export const categoryColors = {
     '🎁 Подарки': '#FFCB9A',
     '💸 Фриланс': '#148a8c'
 };
+
+// Функция для получения цвета категории
+export function getCategoryColor(categoryName) {
+    return categoryColors[categoryName] || '#116466';
+}

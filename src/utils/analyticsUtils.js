@@ -23,14 +23,14 @@ export function getTransactionsByPeriod(transactions, period) {
     return transactions.filter(t => new Date(t.date) >= startDate);
 }
 
-// НОВАЯ ФУНКЦИЯ: Группировка транзакций по дням для выбранного месяца
+// Группировка транзакций по дням для выбранного месяца
 export function groupByDay(transactions, year, month) {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const days = [];
     
     for (let i = 1; i <= daysInMonth; i++) {
         days.push({
-            day: i,
+            name: `${i}`,
             date: `${i}.${month + 1}`,
             income: 0,
             expense: 0
@@ -54,44 +54,9 @@ export function groupByDay(transactions, year, month) {
     return days;
 }
 
-// НОВАЯ ФУНКЦИЯ: Группировка транзакций по неделям для выбранного квартала
-export function groupByWeek(transactions, year, quarter) {
-    const weeks = [];
-    const startMonth = (quarter - 1) * 3;
-    const endMonth = startMonth + 2;
-    
-    // Создаём массив недель (упрощённо — по месяцам)
-    for (let month = startMonth; month <= endMonth; month++) {
-        const monthName = new Date(year, month, 1).toLocaleDateString('ru-RU', { month: 'short' });
-        weeks.push({
-            name: monthName,
-            income: 0,
-            expense: 0
-        });
-    }
-    
-    transactions.forEach(t => {
-        const date = new Date(t.date);
-        if (date.getFullYear() === year) {
-            const month = date.getMonth();
-            if (month >= startMonth && month <= endMonth) {
-                const weekIndex = month - startMonth;
-                if (t.type === 'income') {
-                    weeks[weekIndex].income += t.amount;
-                } else {
-                    weeks[weekIndex].expense += t.amount;
-                }
-            }
-        }
-    });
-    
-    return weeks;
-}
-
-// НОВАЯ ФУНКЦИЯ: Группировка транзакций по месяцам для выбранного года
+// Группировка транзакций по месяцам для выбранного года
 export function groupByMonthForYear(transactions, year) {
     const months = [];
-    
     for (let i = 0; i < 12; i++) {
         const monthName = new Date(year, i, 1).toLocaleDateString('ru-RU', { month: 'short' });
         months.push({
@@ -104,12 +69,25 @@ export function groupByMonthForYear(transactions, year) {
     
     transactions.forEach(t => {
         const date = new Date(t.date);
-        if (date.getFullYear() === year) {
+        if (date.getFullYear() === year && t.type === 'expense') {
             const monthIndex = date.getMonth();
-            if (t.type === 'income') {
+            if (monthIndex >= 0 && monthIndex < 12) {
+                if (t.type === 'income') {
+                    months[monthIndex].income += t.amount;
+                } else {
+                    months[monthIndex].expense += t.amount;
+                }
+            }
+        }
+    });
+    
+    // Добавляем доходы отдельно
+    transactions.forEach(t => {
+        const date = new Date(t.date);
+        if (date.getFullYear() === year && t.type === 'income') {
+            const monthIndex = date.getMonth();
+            if (monthIndex >= 0 && monthIndex < 12) {
                 months[monthIndex].income += t.amount;
-            } else {
-                months[monthIndex].expense += t.amount;
             }
         }
     });
@@ -117,7 +95,7 @@ export function groupByMonthForYear(transactions, year) {
     return months;
 }
 
-// ОБНОВЛЁННАЯ ФУНКЦИЯ: Группировка транзакций по месяцам (для all period)
+// Группировка транзакций по месяцам (для ALL периода)
 export function groupByMonth(transactions, monthsCount = 12) {
     const months = [];
     const now = new Date();
@@ -155,10 +133,11 @@ export function groupExpensesByCategory(transactions) {
     const categories = {};
     
     expenses.forEach(t => {
-        if (!categories[t.category]) {
-            categories[t.category] = 0;
+        const categoryName = t.category || 'Другое';
+        if (!categories[categoryName]) {
+            categories[categoryName] = 0;
         }
-        categories[t.category] += t.amount;
+        categories[categoryName] += t.amount;
     });
     
     return Object.entries(categories)
@@ -172,10 +151,11 @@ export function groupIncomeByCategory(transactions) {
     const categories = {};
     
     incomes.forEach(t => {
-        if (!categories[t.category]) {
-            categories[t.category] = 0;
+        const categoryName = t.category || 'Другое';
+        if (!categories[categoryName]) {
+            categories[categoryName] = 0;
         }
-        categories[t.category] += t.amount;
+        categories[categoryName] += t.amount;
     });
     
     return Object.entries(categories)
@@ -188,10 +168,11 @@ export function getTransactionFrequency(transactions) {
     const frequency = {};
     
     transactions.forEach(t => {
-        if (!frequency[t.category]) {
-            frequency[t.category] = 0;
+        const categoryName = t.category || 'Другое';
+        if (!frequency[categoryName]) {
+            frequency[categoryName] = 0;
         }
-        frequency[t.category]++;
+        frequency[categoryName]++;
     });
     
     return Object.entries(frequency)
@@ -230,11 +211,4 @@ export function calculateComparison(transactions, currentPeriod, previousPeriod)
             diff: currentSavings - previousSavings
         }
     };
-}
-
-// Форматирование чисел для отображения
-export function formatNumberShort(num) {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(0) + 'k';
-    return num.toString();
 }

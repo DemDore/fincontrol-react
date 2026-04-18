@@ -1,12 +1,23 @@
 import { useState, useEffect } from 'react';
+import { useProfile } from '../../context/ProfileContext';
 
 const Header = () => {
+    const { profile } = useProfile();
     const [currentDate, setCurrentDate] = useState('');
+    const [forceUpdate, setForceUpdate] = useState(0);
 
     useEffect(() => {
         const options = { year: 'numeric', month: 'long' };
-        setCurrentDate(new Date().toLocaleDateString('ru-RU', options).charAt(0).toUpperCase() + 
-            new Date().toLocaleDateString('ru-RU', options).slice(1));
+        const date = new Date().toLocaleDateString('ru-RU', options);
+        setCurrentDate(date.charAt(0).toUpperCase() + date.slice(1));
+    }, []);
+
+    useEffect(() => {
+        const handleProfileUpdate = () => {
+            setForceUpdate(Date.now());
+        };
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+        return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
     }, []);
 
     return (
@@ -14,7 +25,7 @@ const Header = () => {
             <div className="header-left">
                 <div className="greeting">
                     <span className="greeting-text">Здравствуйте,</span>
-                    <span className="greeting-name">Анна</span>
+                    <span className="greeting-name">{profile.name}</span>
                 </div>
             </div>
             
@@ -29,7 +40,7 @@ const Header = () => {
                     <span>{currentDate}</span>
                 </div>
                 
-                <button className="notification-btn">
+                <button className="btn-icon notification-btn">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                         <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -37,7 +48,7 @@ const Header = () => {
                     <span className="notification-dot"></span>
                 </button>
                 
-                <div className="avatar">👤</div>
+                <div className="avatar">{profile.avatar}</div>
             </div>
         </header>
     );

@@ -1,20 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAppearanceSettings, saveAppearanceSettings, availableAccents } from '../../utils/settingsUtils';
+import { useProfile } from '../../context/ProfileContext';
 
 const AppearanceTab = () => {
-    const [settings, setSettings] = useState(getAppearanceSettings());
+    const { appearance, updateAppearance } = useProfile();
+    const [settings, setSettings] = useState(appearance || getAppearanceSettings());
+
+    useEffect(() => {
+        if (appearance) {
+            setSettings(appearance);
+        }
+    }, [appearance]);
 
     const handleSave = () => {
         saveAppearanceSettings(settings);
+        updateAppearance(settings);
         alert('Настройки внешнего вида сохранены!');
-        // Применить тему (в реальном приложении нужно обновить CSS переменные)
-        document.documentElement.style.setProperty('--primary', settings.accentColor);
     };
 
     const ToggleSwitch = ({ checked, onChange }) => (
         <button 
             className={`toggle-switch ${checked ? 'active' : ''}`}
             onClick={onChange}
+            type="button"
         >
             <span className="toggle-knob" />
         </button>
@@ -47,10 +55,11 @@ const AppearanceTab = () => {
                             style={{ background: accent.color }}
                             onClick={() => setSettings({ ...settings, accentColor: accent.color })}
                             title={accent.name}
+                            type="button"
                         />
                     ))}
                     <button 
-                        className={`color-option custom ${settings.accentColor === '#116466' ? '' : 'active'}`}
+                        className={`color-option custom ${!availableAccents.find(a => a.color === settings.accentColor) ? 'active' : ''}`}
                         style={{ background: settings.accentColor }}
                         onClick={() => {
                             const color = prompt('Введите цвет в формате HEX (#RRGGBB)', settings.accentColor);
@@ -59,10 +68,12 @@ const AppearanceTab = () => {
                             }
                         }}
                         title="Пользовательский цвет"
+                        type="button"
                     >
                         +
                     </button>
                 </div>
+                <p className="setting-description">Выберите основной цвет приложения</p>
             </div>
 
             <div className="settings-section">
@@ -104,6 +115,20 @@ const AppearanceTab = () => {
                         </div>
                         <span>Просторная</span>
                     </label>
+                </div>
+                <p className="setting-description">Влияет на отступы и размеры элементов</p>
+            </div>
+
+            <div className="preview-section">
+                <label>Предпросмотр</label>
+                <div className="preview-example">
+                    <div className="preview-card">
+                        <div className="preview-icon">💰</div>
+                        <div className="preview-text">
+                            <div className="preview-title">Пример карточки</div>
+                            <div className="preview-subtitle">С выбранными цветами</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

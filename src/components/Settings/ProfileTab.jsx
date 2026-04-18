@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { getProfile, saveProfile } from '../../utils/settingsUtils';
+import { useProfile } from '../../context/ProfileContext';
 import ChangePasswordModal from './ChangePasswordModal';
 
 const ProfileTab = () => {
-    const [profile, setProfile] = useState(getProfile());
+    const { profile, updateProfile } = useProfile();
+    const [localProfile, setLocalProfile] = useState(profile);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
     const handleSave = () => {
-        saveProfile(profile);
+        updateProfile(localProfile);
         alert('Профиль сохранён!');
     };
 
@@ -18,10 +19,10 @@ const ProfileTab = () => {
             <div className="settings-section">
                 <label>Аватар</label>
                 <div className="avatar-section">
-                    <div className="avatar-preview">{profile.avatar}</div>
+                    <div className="avatar-preview">{localProfile.avatar}</div>
                     <button className="btn-secondary" onClick={() => {
-                        const newAvatar = prompt('Введите emoji для аватара:', profile.avatar);
-                        if (newAvatar) setProfile({ ...profile, avatar: newAvatar });
+                        const newAvatar = prompt('Введите emoji для аватара:', localProfile.avatar);
+                        if (newAvatar) setLocalProfile({ ...localProfile, avatar: newAvatar });
                     }}>
                         📷 Сменить аватар
                     </button>
@@ -32,8 +33,8 @@ const ProfileTab = () => {
                 <label>Имя пользователя</label>
                 <input 
                     type="text"
-                    value={profile.name}
-                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                    value={localProfile.name}
+                    onChange={(e) => setLocalProfile({ ...localProfile, name: e.target.value })}
                     placeholder="Ваше имя"
                 />
             </div>
@@ -42,8 +43,8 @@ const ProfileTab = () => {
                 <label>Email</label>
                 <input 
                     type="email"
-                    value={profile.email}
-                    onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                    value={localProfile.email}
+                    onChange={(e) => setLocalProfile({ ...localProfile, email: e.target.value })}
                     placeholder="your@email.com"
                 />
             </div>

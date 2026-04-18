@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { expenseCategories, incomeCategories } from '../../data/mockData';
+import { useCurrency } from '../../hooks/useCurrency';
 
-const TransactionModal = ({ isOpen, onClose, onSave, transaction }) => {
+const TransactionModal = ({ isOpen, onClose, onSave, transaction, expenseCategories, incomeCategories }) => {
+    const { formatCurrency } = useCurrency();
     const [formData, setFormData] = useState({
         type: 'expense',
         amount: '',
@@ -33,6 +34,7 @@ const TransactionModal = ({ isOpen, onClose, onSave, transaction }) => {
     if (!isOpen) return null;
 
     const categories = formData.type === 'expense' ? expenseCategories : incomeCategories;
+    const previewAmount = formData.amount ? parseFloat(formData.amount) : 0;
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -94,6 +96,11 @@ const TransactionModal = ({ isOpen, onClose, onSave, transaction }) => {
                             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                             required
                         />
+                        {previewAmount > 0 && (
+                            <p className="input-hint" style={{ marginTop: '8px', color: 'var(--text-muted)' }}>
+                                Предпросмотр: {formatCurrency(previewAmount)}
+                            </p>
+                        )}
                     </div>
                     
                     <div className="form-group">

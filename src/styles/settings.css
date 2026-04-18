@@ -466,3 +466,126 @@
         width: 100%;
     }
 }
+
+
+/* Preview Section */
+.preview-section {
+    background: var(--bg-dark);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid var(--border-light);
+}
+
+.preview-example {
+    margin-top: 12px;
+}
+
+.preview-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+}
+
+.preview-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--primary-glow);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--primary);
+}
+
+.preview-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.preview-subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Обновлённые стили для светлой темы */
+.settings-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.settings-section input,
+.settings-section select {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
+
+.settings-section input:focus,
+.settings-section select:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.toggle-switch {
+    background: var(--border-light);
+}
+
+.toggle-switch.active {
+    background: var(--primary);
+}
+
+.radio-label {
+    color: var(--text-secondary);
+}
+
+.radio-label.active {
+    background: var(--primary-glow);
+    border-color: var(--primary);
+}
+
+.danger-zone {
+    background: rgba(255, 107, 107, 0.08);
+    border-left-color: var(--danger);
+}
+
+.color-option {
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 3px var(--border-light);
+}
+
+.color-option.active {
+    box-shadow: 0 0 0 2px var(--bg-card), 0 0 0 3px var(--primary);
+}
+
+/* Плотность отображения */
+[data-density="compact"] .content {
+    padding: 16px 24px;
+}
+
+[data-density="compact"] .settings-card {
+    padding: 20px;
+}
+
+[data-density="compact"] .settings-section {
+    margin-bottom: 20px;
+}
+
+[data-density="spacious"] .content {
+    padding: 40px 48px;
+}
+
+[data-density="spacious"] .settings-card {
+    padding: 36px;
+}
+
+[data-density="spacious"] .settings-section {
+    margin-bottom: 36px;
+}

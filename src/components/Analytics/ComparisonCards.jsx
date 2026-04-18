@@ -1,6 +1,8 @@
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 
 const ComparisonCards = ({ comparison }) => {
+    const { formatCurrency } = useCurrency();
+
     const cards = [
         {
             title: 'Доходы',
@@ -43,12 +45,12 @@ const ComparisonCards = ({ comparison }) => {
                                 <span className="comparison-icon">{card.icon}</span>
                                 <span className="comparison-title">{card.title}</span>
                             </div>
-                            <div className="comparison-current">{formatNumber(card.current)} ₽</div>
+                            <div className="comparison-current">{formatCurrency(card.current)}</div>
                             <div className={`comparison-change ${isPositive ? 'positive' : 'negative'}`}>
                                 {card.diff >= 0 ? '▲' : '▼'} {Math.abs(card.change).toFixed(1)}%
                             </div>
                             <div className="comparison-previous">
-                                vs {formatNumber(card.previous)} ₽
+                                vs {formatCurrency(card.previous)}
                             </div>
                         </div>
                     );

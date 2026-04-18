@@ -202,10 +202,27 @@
     z-index: 50;
 }
 
-.header-left { display: flex; align-items: center; gap: 20px; }
-.greeting-text { font-size: 13px; color: var(--text-muted); }
-.greeting-name { font-size: 18px; font-weight: 600; }
-.header-right { display: flex; align-items: center; gap: 16px; }
+.header-left { 
+    display: flex; align-items: center; gap: 20px; }
+
+.greeting {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.greeting-text {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.greeting-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.header-right { 
+    display: flex; align-items: center; gap: 16px; }
 
 .date-badge {
     display: flex;
@@ -620,3 +637,259 @@
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.empty-transactions {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+}
+
+.empty-transactions p {
+    margin-bottom: 8px;
+}
+
+.empty-transactions .empty-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* Кнопки в модальных окнах */
+.modal .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border-light);
+}
+
+.modal .btn-primary,
+.modal .btn-secondary {
+    min-width: 100px;
+}
+
+/* Кнопка добавления транзакции на странице */
+.page-header .btn-primary {
+    padding: 12px 28px;
+    font-size: 15px;
+}
+
+/* Кнопка экспорта */
+.export-btn {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    padding: 12px 28px;
+}
+
+/* Кнопки вкладок (Tabs) */
+.settings-tab,
+.tab-btn {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.settings-tab:hover,
+.tab-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.settings-tab.active,
+.tab-btn.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-color: transparent;
+    color: white;
+    box-shadow: 0 4px 12px rgba(17, 100, 102, 0.3);
+}
+
+/* Период селектор на графике */
+.period-btn {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.period-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.period-btn.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-color: transparent;
+    color: white;
+}
+
+/* Period Selector Styles */
+.period-selector-wrapper {
+    position: relative;
+}
+
+.period-trigger-btn {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 160px;
+    transition: all 0.2s;
+}
+
+.period-trigger-btn:hover {
+    border-color: var(--primary);
+    background: var(--bg-hover);
+}
+
+.period-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 100;
+    min-width: 280px;
+    max-width: 320px;
+}
+
+.period-dropdown-section {
+    padding: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.period-dropdown-section:last-child {
+    border-bottom: none;
+}
+
+.period-dropdown-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.period-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.period-option:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.period-option.active {
+    background: var(--primary-glow);
+    color: var(--primary-light);
+}
+
+.month-year-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.month-select, .year-select {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.year-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.year-option {
+    padding: 6px 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.year-option:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.year-option.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.date-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.date-input {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 13px;
+}
+
+.period-apply-btn {
+    padding: 6px 12px;
+    background: var(--primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.period-apply-btn:hover {
+    background: var(--primary-light);
+}
+.header-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}

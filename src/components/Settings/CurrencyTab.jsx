@@ -1,15 +1,30 @@
-import { useState } from 'react';
-import { getCurrencySettings, saveCurrencySettings, availableCurrencies } from '../../utils/settingsUtils';
+import { useState, useEffect } from 'react';
+import { availableCurrencies } from '../../utils/settingsUtils';
+import { useProfile } from '../../context/ProfileContext';
+import { formatCurrency as formatCurrencyPreview } from '../../utils/formatters';
 
 const CurrencyTab = () => {
-    const [settings, setSettings] = useState(getCurrencySettings());
+    const { currency, updateCurrency } = useProfile();
+    const [settings, setSettings] = useState(currency);
+
+    useEffect(() => {
+        if (currency) {
+            setSettings(currency);
+        }
+    }, [currency]);
 
     const handleSave = () => {
-        saveCurrencySettings(settings);
+        updateCurrency(settings);
+        // Обновляем кэш в formatters
+        import('../../utils/formatters').then(module => {
+            module.updateCurrencyCache();
+        });
         alert('Настройки валюты сохранены!');
     };
 
-    const selectedCurrency = availableCurrencies.find(c => c.code === settings.code);
+    const previewAmount = 12345.67;
+
+    if (!settings) return <div>Загрузка...</div>;
 
     return (
         <div className="settings-card">
@@ -24,9 +39,9 @@ const CurrencyTab = () => {
                         setSettings({ ...settings, code: currency.code, symbol: currency.symbol, name: currency.name });
                     }}
                 >
-                    {availableCurrencies.map(currency => (
-                        <option key={currency.code} value={currency.code}>
-                            {currency.name} ({currency.symbol})
+                    {availableCurrencies.map(curr => (
+                        <option key={curr.code} value={curr.code}>
+                            {curr.name} ({curr.symbol})
                         </option>
                     ))}
                 </select>
@@ -92,12 +107,9 @@ const CurrencyTab = () => {
             <div className="preview-section">
                 <label>Предпросмотр</label>
                 <div className="preview-value">
-                    {settings.position === 'before' ? settings.symbol : ''}
-                    {settings.format === 'space_after' && settings.position === 'before' ? ' ' : ''}
-                    12 345.67
-                    {settings.format === 'space_before' && settings.position === 'after' ? ' ' : ''}
-                    {settings.position === 'after' ? settings.symbol : ''}
+                    {formatCurrencyPreview(previewAmount)}
                 </div>
+                <p className="setting-description">Пример отображения суммы {previewAmount}</p>
             </div>
 
             <div className="settings-actions">

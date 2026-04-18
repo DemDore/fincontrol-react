@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react';
+import { 
+    getExpenseCategories, 
+    getIncomeCategories,
+    saveExpenseCategories,
+    saveIncomeCategories,
+    addExpenseCategory,
+    addIncomeCategory,
+    updateExpenseCategory,
+    updateIncomeCategory,
+    deleteExpenseCategory,
+    deleteIncomeCategory
+} from '../utils/categoriesUtils';
 import CategoryTabs from '../components/Categories/CategoryTabs';
 import CategoryModal from '../components/Categories/CategoryModal';
 import CategoriesList from '../components/Categories/CategoriesList';
 import '../styles/categories.css';
 
-// Ключи для localStorage
-const STORAGE_KEYS = {
-    EXPENSE_CATEGORIES: 'fincontrol_expense_categories',
-    INCOME_CATEGORIES: 'fincontrol_income_categories'
-};
-
-// Начальные категории расходов
+// Начальные категории для сброса
 const defaultExpenseCategories = [
     { id: 1, name: '🍔 Еда', icon: '🍔', budget: 15000 },
     { id: 2, name: '🚗 Транспорт', icon: '🚗', budget: 5000 },
@@ -21,7 +27,6 @@ const defaultExpenseCategories = [
     { id: 7, name: '📚 Образование', icon: '📚', budget: 5000 }
 ];
 
-// Начальные категории доходов
 const defaultIncomeCategories = [
     { id: 1, name: '💼 Зарплата', icon: '💼' },
     { id: 2, name: '📈 Инвестиции', icon: '📈' },
@@ -29,104 +34,57 @@ const defaultIncomeCategories = [
     { id: 4, name: '💸 Фриланс', icon: '💸' }
 ];
 
-function Categories() {
+const Categories = () => {
     const [expenseCategories, setExpenseCategories] = useState([]);
     const [incomeCategories, setIncomeCategories] = useState([]);
     const [activeTab, setActiveTab] = useState('expense');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
 
-    // Загрузка категорий при монтировании
     useEffect(() => {
         loadCategories();
     }, []);
 
     const loadCategories = () => {
-        // Загрузка категорий расходов
-        const savedExpense = localStorage.getItem(STORAGE_KEYS.EXPENSE_CATEGORIES);
-        if (savedExpense) {
-            setExpenseCategories(JSON.parse(savedExpense));
-        } else {
-            setExpenseCategories(defaultExpenseCategories);
-            localStorage.setItem(STORAGE_KEYS.EXPENSE_CATEGORIES, JSON.stringify(defaultExpenseCategories));
-        }
-
-        // Загрузка категорий доходов
-        const savedIncome = localStorage.getItem(STORAGE_KEYS.INCOME_CATEGORIES);
-        if (savedIncome) {
-            setIncomeCategories(JSON.parse(savedIncome));
-        } else {
-            setIncomeCategories(defaultIncomeCategories);
-            localStorage.setItem(STORAGE_KEYS.INCOME_CATEGORIES, JSON.stringify(defaultIncomeCategories));
-        }
+        setExpenseCategories(getExpenseCategories());
+        setIncomeCategories(getIncomeCategories());
     };
 
-    // Сохранение категорий расходов
-    const saveExpenseCategories = (categories) => {
-        localStorage.setItem(STORAGE_KEYS.EXPENSE_CATEGORIES, JSON.stringify(categories));
-        setExpenseCategories(categories);
-    };
-
-    // Сохранение категорий доходов
-    const saveIncomeCategories = (categories) => {
-        localStorage.setItem(STORAGE_KEYS.INCOME_CATEGORIES, JSON.stringify(categories));
-        setIncomeCategories(categories);
-    };
-
-    // Сохранение (добавление или редактирование)
     const handleSave = (categoryData) => {
         if (activeTab === 'expense') {
-            let newCategories;
             if (editingCategory) {
-                newCategories = expenseCategories.map(c =>
-                    c.id === editingCategory.id
-                        ? { ...categoryData, id: c.id }
-                        : c
-                );
+                updateExpenseCategory(editingCategory.id, categoryData);
             } else {
-                const newId = Math.max(0, ...expenseCategories.map(c => c.id), 0) + 1;
-                newCategories = [{ ...categoryData, id: newId }, ...expenseCategories];
+                addExpenseCategory(categoryData);
             }
-            saveExpenseCategories(newCategories);
         } else {
-            let newCategories;
             if (editingCategory) {
-                newCategories = incomeCategories.map(c =>
-                    c.id === editingCategory.id
-                        ? { ...categoryData, id: c.id }
-                        : c
-                );
+                updateIncomeCategory(editingCategory.id, categoryData);
             } else {
-                const newId = Math.max(0, ...incomeCategories.map(c => c.id), 0) + 1;
-                newCategories = [{ ...categoryData, id: newId }, ...incomeCategories];
+                addIncomeCategory(categoryData);
             }
-            saveIncomeCategories(newCategories);
         }
-        
+        loadCategories();
         setIsModalOpen(false);
         setEditingCategory(null);
     };
 
-    // Редактирование категории
     const handleEdit = (category) => {
         setEditingCategory(category);
         setIsModalOpen(true);
     };
 
-    // Удаление категории
     const handleDelete = (id) => {
         if (confirm('Удалить эту категорию? Транзакции с этой категорией останутся, но категория будет удалена из списка.')) {
             if (activeTab === 'expense') {
-                const filtered = expenseCategories.filter(c => c.id !== id);
-                saveExpenseCategories(filtered);
+                deleteExpenseCategory(id);
             } else {
-                const filtered = incomeCategories.filter(c => c.id !== id);
-                saveIncomeCategories(filtered);
+                deleteIncomeCategory(id);
             }
+            loadCategories();
         }
     };
 
-    // Сброс к стандартным категориям
     const handleResetDefaults = () => {
         const confirmMessage = activeTab === 'expense' 
             ? 'Сбросить все категории расходов к стандартным? Все ваши изменения будут потеряны.'
@@ -138,6 +96,7 @@ function Categories() {
             } else {
                 saveIncomeCategories(defaultIncomeCategories);
             }
+            loadCategories();
         }
     };
 
@@ -149,13 +108,10 @@ function Categories() {
         <div className="content">
             <div className="page-header">
                 <h1>Управление категориями</h1>
-                <button 
-                    className="btn-primary" 
-                    onClick={() => {
-                        setEditingCategory(null);
-                        setIsModalOpen(true);
-                    }}
-                >
+                <button className="btn-primary" onClick={() => {
+                    setEditingCategory(null);
+                    setIsModalOpen(true);
+                }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="12" y1="5" x2="12" y2="19"/>
                         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -191,6 +147,6 @@ function Categories() {
             />
         </div>
     );
-}
+};
 
 export default Categories;

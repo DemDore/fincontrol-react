@@ -1,6 +1,9 @@
-import { formatNumber, formatDate } from '../../utils/formatters';
+import { formatDate } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 
 const TransactionsTable = ({ transactions, onEdit, onDelete }) => {
+    const { formatCurrency } = useCurrency();
+
     if (transactions.length === 0) {
         return (
             <div className="empty-state">
@@ -30,19 +33,19 @@ const TransactionsTable = ({ transactions, onEdit, onDelete }) => {
                             <td>{transaction.category}</td>
                             <td>{transaction.description || '—'}</td>
                             <td className={`transaction-amount-cell ${transaction.type}`}>
-                                {transaction.type === 'income' ? '+' : '-'} {formatNumber(transaction.amount)} ₽
+                                {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
                             </td>
-                            <td className="action-buttons">
+                            <td className="actions-cell">
                                 <button 
-                                    className="edit-btn" 
-                                    onClick={() => onEdit(transaction)}
+                                    className="btn-icon edit" 
+                                    onClick={() => onEdit(transaction)} 
                                     title="Редактировать"
                                 >
                                     ✏️
                                 </button>
                                 <button 
-                                    className="delete-btn" 
-                                    onClick={() => onDelete(transaction.id)}
+                                    className="btn-icon delete" 
+                                    onClick={() => onDelete(transaction.id)} 
                                     title="Удалить"
                                 >
                                     🗑️

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from '../utils/storage';
+import { useCurrency } from '../hooks/useCurrency';
 import { 
     getTransactionsByPeriod,
     groupByMonth,
     groupByMonthForYear,
-    groupByWeek,
     groupByDay,
     groupExpensesByCategory,
     groupIncomeByCategory,
@@ -23,9 +23,8 @@ import '../styles/analytics.css';
 const Analytics = () => {
     const [transactions, setTransactions] = useState([]);
     const [period, setPeriod] = useState('month');
-    const [chartData, setChartData] = useState([]);
-    const [chartType, setChartType] = useState('line');
     const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [chartData, setChartData] = useState([]);
     const [expensesByCategory, setExpensesByCategory] = useState([]);
     const [incomesByCategory, setIncomesByCategory] = useState([]);
     const [frequentTransactions, setFrequentTransactions] = useState([]);
@@ -55,29 +54,20 @@ const Analytics = () => {
         
         switch(period) {
             case 'month':
-                // Показываем данные по дням текущего месяца
                 const dailyData = groupByDay(transactions, currentYear, currentMonth);
                 setChartData(dailyData);
-                setChartType('bar');
                 break;
             case 'quarter':
-                // Показываем данные по неделям/месяцам текущего квартала
-                const currentQuarter = Math.floor(currentMonth / 3) + 1;
-                const weeklyData = groupByWeek(transactions, currentYear, currentQuarter);
-                setChartData(weeklyData);
-                setChartType('bar');
+                const quarterlyData = groupByMonthForYear(transactions, currentYear).slice(0, 3);
+                setChartData(quarterlyData);
                 break;
             case 'year':
-                // Показываем данные по месяцам текущего года
-                const monthlyData = groupByMonthForYear(transactions, currentYear);
-                setChartData(monthlyData);
-                setChartType('line');
+                const yearlyData = groupByMonthForYear(transactions, currentYear);
+                setChartData(yearlyData);
                 break;
             case 'all':
-                // Показываем данные за последние 12 месяцев
-                const allMonthsData = groupByMonth(transactions, 12);
-                setChartData(allMonthsData);
-                setChartType('line');
+                const allData = groupByMonth(transactions, 12);
+                setChartData(allData);
                 break;
             default:
                 setChartData([]);
@@ -106,7 +96,7 @@ const Analytics = () => {
         const frequent = getTransactionFrequency(filtered);
         setFrequentTransactions(frequent);
         
-        // Сравнение с прошлым периодом
+        // Сравнение с прошлым периодом (упрощённо)
         const now = new Date();
         let previousStart = new Date();
         let currentStart = new Date();
@@ -136,21 +126,18 @@ const Analytics = () => {
         setComparison(comparisonData);
     };
 
-    // Получить заголовок графика в зависимости от периода
     const getChartTitle = () => {
+        const now = new Date();
+        const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
         switch(period) {
             case 'month':
-                const now = new Date();
-                const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
                 return `Динамика доходов и расходов за ${monthName}`;
             case 'quarter':
-                return 'Динамика доходов и расходов по месяцам квартала';
+                return 'Динамика доходов и расходов за квартал';
             case 'year':
                 return 'Динамика доходов и расходов по месяцам года';
-            case 'all':
-                return 'Динамика доходов и расходов за последние 12 месяцев';
             default:
-                return 'Динамика доходов и расходов';
+                return 'Динамика доходов и расходов за последние 12 месяцев';
         }
     };
 
@@ -172,9 +159,9 @@ const Analytics = () => {
                     <h2>{getChartTitle()}</h2>
                 </div>
                 {chartData.length > 0 ? (
-                    <IncomeExpenseChart chartData={chartData} chartType={chartType} />
+                    <IncomeExpenseChart monthlyData={chartData} />
                 ) : (
-                    <div className="empty-state-small">Нет данных для отображения</div>
+                    <div className="empty-chart">Нет данных для отображения</div>
                 )}
             </div>
 

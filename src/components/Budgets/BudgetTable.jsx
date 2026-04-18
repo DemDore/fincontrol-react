@@ -1,7 +1,9 @@
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 import BudgetProgressBar from './BudgetProgressBar';
 
 const BudgetTable = ({ budgets, onEdit, onDelete }) => {
+    const { formatCurrency } = useCurrency();
+
     if (budgets.length === 0) {
         return (
             <div className="empty-state">
@@ -37,13 +39,13 @@ const BudgetTable = ({ budgets, onEdit, onDelete }) => {
                                     <span className="category-icon">{budget.category.split(' ')[0]}</span>
                                     <span className="category-name">{budget.category}</span>
                                 </td>
-                                <td className="budget-cell">{formatNumber(budget.budget)} ₽</td>
+                                <td className="budget-cell">{formatCurrency(budget.budget)}</td>
                                 <td className={`spent-cell ${isOverBudget ? 'danger' : ''}`}>
-                                    {formatNumber(budget.spent)} ₽
+                                    {formatCurrency(budget.spent)}
                                     {isOverBudget && <span className="warning-icon">⚠️</span>}
                                 </td>
                                 <td className={`remaining-cell ${isOverBudget ? 'danger' : 'success'}`}>
-                                    {isOverBudget ? '-' : ''}{formatNumber(Math.abs(remaining))} ₽
+                                    {isOverBudget ? '-' : ''}{formatCurrency(Math.abs(remaining))}
                                 </td>
                                 <td className="progress-cell">
                                     <div className="progress-wrapper">
@@ -52,12 +54,14 @@ const BudgetTable = ({ budgets, onEdit, onDelete }) => {
                                     </div>
                                 </td>
                                 <td className="actions-cell">
-                                    <button className="edit-btn" onClick={() => onEdit(budget)} title="Редактировать">
-                                        ✏️
-                                    </button>
-                                    <button className="delete-btn" onClick={() => onDelete(budget.id)} title="Удалить">
-                                        🗑️
-                                    </button>
+                                    <div className="action-buttons">
+                                        <button className="btn-icon edit" onClick={() => onEdit(budget)} title="Редактировать">
+                                            ✏️
+                                        </button>
+                                        <button className="btn-icon delete" onClick={() => onDelete(budget.id)} title="Удалить">
+                                            🗑️
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         );

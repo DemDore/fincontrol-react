@@ -17,8 +17,8 @@ const defaultCurrency = {
     code: 'RUB',
     symbol: '₽',
     name: 'Российский рубль',
-    format: 'space_before', // space_before, space_after, no_space
-    position: 'after' // before, after
+    format: 'space_before',
+    position: 'after'
 };
 
 const defaultNotifications = {
@@ -31,69 +31,56 @@ const defaultNotifications = {
 
 const defaultAppearance = {
     darkMode: true,
-    density: 'comfortable', // compact, comfortable, spacious
+    density: 'comfortable',
     accentColor: '#116466'
 };
 
-// Получить профиль
 export function getProfile() {
     const saved = localStorage.getItem(SETTINGS_KEYS.PROFILE);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+        try {
+            return JSON.parse(saved);
+        } catch (e) {
+            return defaultProfile;
+        }
+    }
     return defaultProfile;
 }
 
-// Сохранить профиль
 export function saveProfile(profile) {
     localStorage.setItem(SETTINGS_KEYS.PROFILE, JSON.stringify(profile));
 }
 
-// Получить настройки валюты
 export function getCurrencySettings() {
     const saved = localStorage.getItem(SETTINGS_KEYS.CURRENCY);
     if (saved) return JSON.parse(saved);
     return defaultCurrency;
 }
 
-// Сохранить настройки валюты
 export function saveCurrencySettings(settings) {
     localStorage.setItem(SETTINGS_KEYS.CURRENCY, JSON.stringify(settings));
 }
 
-// Получить настройки уведомлений
 export function getNotificationSettings() {
     const saved = localStorage.getItem(SETTINGS_KEYS.NOTIFICATIONS);
     if (saved) return JSON.parse(saved);
     return defaultNotifications;
 }
 
-// Сохранить настройки уведомлений
 export function saveNotificationSettings(settings) {
     localStorage.setItem(SETTINGS_KEYS.NOTIFICATIONS, JSON.stringify(settings));
 }
 
-// Получить настройки внешнего вида
 export function getAppearanceSettings() {
     const saved = localStorage.getItem(SETTINGS_KEYS.APPEARANCE);
     if (saved) return JSON.parse(saved);
     return defaultAppearance;
 }
 
-// Сохранить настройки внешнего вида
 export function saveAppearanceSettings(settings) {
     localStorage.setItem(SETTINGS_KEYS.APPEARANCE, JSON.stringify(settings));
 }
 
-// Форматирование чисел с валютой
-export function formatCurrency(amount, currencySettings) {
-    const formatted = new Intl.NumberFormat('ru-RU').format(amount);
-    if (currencySettings.position === 'before') {
-        return `${currencySettings.symbol} ${formatted}`;
-    } else {
-        return `${formatted} ${currencySettings.symbol}`;
-    }
-}
-
-// Доступные валюты
 export const availableCurrencies = [
     { code: 'RUB', symbol: '₽', name: 'Российский рубль' },
     { code: 'USD', symbol: '$', name: 'Доллар США' },
@@ -104,9 +91,33 @@ export const availableCurrencies = [
     { code: 'KZT', symbol: '₸', name: 'Казахстанский тенге' }
 ];
 
-// Доступные цветовые акценты
 export const availableAccents = [
     { color: '#116466', name: 'Бирюзовый' },
     { color: '#FFCB9A', name: 'Персиковый' },
     { color: '#D9B08C', name: 'Песочный' }
 ];
+
+// Применить тему к документу
+export function applyTheme(settings) {
+    const { darkMode, accentColor } = settings;
+    
+    // Применяем тему
+    if (darkMode) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+    
+    // Применяем акцентный цвет
+    if (accentColor === '#116466') {
+        document.documentElement.setAttribute('data-accent', 'teal');
+    } else if (accentColor === '#FFCB9A') {
+        document.documentElement.setAttribute('data-accent', 'peach');
+    } else if (accentColor === '#D9B08C') {
+        document.documentElement.setAttribute('data-accent', 'sand');
+    } else {
+        document.documentElement.setAttribute('data-accent', 'custom');
+        document.documentElement.style.setProperty('--primary', accentColor);
+        document.documentElement.style.setProperty('--primary-light', accentColor);
+    }
+}

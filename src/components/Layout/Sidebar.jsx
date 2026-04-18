@@ -1,14 +1,42 @@
 import { NavLink } from 'react-router-dom';
+import { useProfile } from '../../context/ProfileContext';
+import { useState, useEffect } from 'react';
 
 const Sidebar = () => {
+    const { profile } = useProfile();
+    const [forceUpdate, setForceUpdate] = useState(0);
+    
     const navItems = [
         { path: '/', icon: '📊', label: 'Главная' },
         { path: '/transactions', icon: '💸', label: 'Транзакции' },
         { path: '/categories', icon: '🏷️', label: 'Категории' },
         { path: '/analytics', icon: '📈', label: 'Аналитика' },
         { path: '/budgets', icon: '🎯', label: 'Бюджеты' },
+        { path: '/loan-calculator', icon: '🏦', label: 'Кредитный калькулятор' },
         { path: '/settings', icon: '⚙️', label: 'Настройки' },
     ];
+
+    useEffect(() => {
+        const handleProfileUpdate = () => {
+            setForceUpdate(Date.now());
+        };
+        window.addEventListener('profileUpdated', handleProfileUpdate);
+        return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
+    }, []);
+
+    if (!profile) {
+        return (
+            <aside className="sidebar">
+                <div className="logo">
+                    <span className="logo-icon">💰</span>
+                    <span className="logo-text">FinControl</span>
+                </div>
+                <div className="user-section">
+                    <div className="user-info">Загрузка...</div>
+                </div>
+            </aside>
+        );
+    }
 
     return (
         <aside className="sidebar">
@@ -32,10 +60,10 @@ const Sidebar = () => {
             
             <div className="user-section">
                 <div className="user-info">
-                    <div className="user-avatar">👤</div>
+                    <div className="user-avatar">{profile.avatar}</div>
                     <div className="user-details">
-                        <div className="user-name">Анна</div>
-                        <div className="user-email">anna@example.com</div>
+                        <div className="user-name">{profile.name}</div>
+                        <div className="user-email">{profile.email}</div>
                     </div>
                     <button className="logout-btn" title="Выйти">🚪</button>
                 </div>

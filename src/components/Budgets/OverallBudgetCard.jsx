@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 import BudgetProgressBar from './BudgetProgressBar';
 
 const OverallBudgetCard = ({ stats, onEdit }) => {
+    const { formatCurrency } = useCurrency();
     const [showEditModal, setShowEditModal] = useState(false);
     const [newBudget, setNewBudget] = useState(stats.totalBudget);
 
@@ -32,10 +33,10 @@ const OverallBudgetCard = ({ stats, onEdit }) => {
                     <div className="stats-row">
                         <span className="stats-label">Потрачено:</span>
                         <span className={`stats-value ${stats.isOverBudget ? 'danger' : ''}`}>
-                            {formatNumber(stats.totalSpent)} ₽
+                            {formatCurrency(stats.totalSpent)}
                         </span>
                         <span className="stats-divider">из</span>
-                        <span className="stats-value">{formatNumber(stats.totalBudget)} ₽</span>
+                        <span className="stats-value">{formatCurrency(stats.totalBudget)}</span>
                         <span className="stats-percent">({stats.percent.toFixed(1)}%)</span>
                     </div>
                 </div>
@@ -50,7 +51,7 @@ const OverallBudgetCard = ({ stats, onEdit }) => {
                     <div className="footer-item">
                         <span className="footer-label">Осталось:</span>
                         <span className={`footer-value ${stats.remaining < 0 ? 'danger' : 'success'}`}>
-                            {formatNumber(Math.abs(stats.remaining))} ₽
+                            {formatCurrency(Math.abs(stats.remaining))}
                             {stats.remaining < 0 && ' (перерасход)'}
                         </span>
                     </div>
@@ -60,12 +61,11 @@ const OverallBudgetCard = ({ stats, onEdit }) => {
                     </div>
                     <div className="footer-item">
                         <span className="footer-label">Дневной лимит:</span>
-                        <span className="footer-value">{formatNumber(Math.round(stats.dailyLimit))} ₽</span>
+                        <span className="footer-value">{formatCurrency(Math.round(stats.dailyLimit))}</span>
                     </div>
                 </div>
             </div>
 
-            {/* Модальное окно редактирования общего бюджета */}
             {showEditModal && (
                 <div className="modal active" onClick={() => setShowEditModal(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>

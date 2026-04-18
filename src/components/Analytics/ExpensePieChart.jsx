@@ -1,11 +1,11 @@
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { formatNumber } from '../../utils/formatters';
-import { categoryColors } from '../../data/mockData';
+import { useCurrency } from '../../hooks/useCurrency';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ExpensePieChart = ({ expenses }) => {
+    const { formatCurrency } = useCurrency();
     const total = expenses.reduce((sum, e) => sum + e.amount, 0);
     
     const data = {
@@ -48,7 +48,7 @@ const ExpensePieChart = ({ expenses }) => {
                     label: function(context) {
                         const value = context.raw;
                         const percent = ((value / total) * 100).toFixed(1);
-                        return `${context.label}: ${formatNumber(value)} ₽ (${percent}%)`;
+                        return `${context.label}: ${formatCurrency(value)} (${percent}%)`;
                     }
                 }
             }

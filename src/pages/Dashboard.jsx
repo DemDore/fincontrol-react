@@ -7,15 +7,38 @@ import ExpenseCategories from '../components/Dashboard/ExpenseCategories';
 
 const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
+    const [chartPeriod, setChartPeriod] = useState('all');
 
     useEffect(() => {
-        setTransactions(getTransactions());
+        loadTransactions();
+        
+        // Слушаем изменения в localStorage (когда добавляются транзакции из других вкладок)
+        const handleStorageChange = () => {
+            loadTransactions();
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
+
+    const loadTransactions = () => {
+        const allTransactions = getTransactions();
+        setTransactions(allTransactions);
+    };
+
+    // Обновляем транзакции при изменении (для текущей вкладки)
+    const refreshTransactions = () => {
+        loadTransactions();
+    };
 
     return (
         <div className="content">
             <StatsCards transactions={transactions} />
-            <Chart />
+            <Chart 
+                transactions={transactions} 
+                period={chartPeriod}
+                onPeriodChange={setChartPeriod}
+            />
             <div className="two-columns">
                 <RecentTransactions transactions={transactions} />
                 <ExpenseCategories transactions={transactions} />

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from '../utils/storage';
+import { useCurrency } from '../hooks/useCurrency';
 import { 
     getBudgets, 
     saveBudgets, 
@@ -20,6 +21,7 @@ import BudgetAlerts from '../components/Budgets/BudgetAlerts';
 import '../styles/budgets.css';
 
 const Budgets = () => {
+    const { formatCurrency } = useCurrency();
     const [transactions, setTransactions] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [overallBudget, setOverallBudget] = useState(50000);
@@ -120,7 +122,11 @@ const Budgets = () => {
                     setEditingBudget(null);
                     setIsModalOpen(true);
                 }}>
-                    ➕ Добавить бюджет
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Добавить бюджет
                 </button>
             </div>
 

@@ -1,6 +1,8 @@
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 
 const StatsCards = ({ transactions }) => {
+    const { formatCurrency } = useCurrency();
+    
     const totalIncome = transactions
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + t.amount, 0);
@@ -10,12 +12,13 @@ const StatsCards = ({ transactions }) => {
         .reduce((sum, t) => sum + t.amount, 0);
     
     const balance = totalIncome - totalExpense;
+    const savingsRate = totalIncome > 0 ? (balance / totalIncome) * 100 : 0;
 
     const cards = [
-        { label: 'Баланс', value: balance, icon: '💰', color: 'blue', change: '+5.2%', positive: true },
-        { label: 'Доходы', value: totalIncome, icon: '📈', color: 'green', change: '+8%', positive: true },
-        { label: 'Расходы', value: totalExpense, icon: '📉', color: 'orange', change: '-2%', positive: false },
-        { label: 'Свободно', value: balance, icon: '✨', color: 'purple', change: '+12%', positive: true },
+        { label: 'Баланс', value: balance, icon: '💰', color: 'blue' },
+        { label: 'Доходы', value: totalIncome, icon: '📈', color: 'green' },
+        { label: 'Расходы', value: totalExpense, icon: '📉', color: 'orange' },
+        { label: 'Норма сбережений', value: savingsRate, icon: '✨', color: 'purple', suffix: '%', isPercent: true },
     ];
 
     return (
@@ -27,9 +30,10 @@ const StatsCards = ({ transactions }) => {
                     </div>
                     <div className="stat-info">
                         <span className="stat-label">{card.label}</span>
-                        <span className="stat-value">{formatNumber(card.value)} ₽</span>
-                        <span className={`stat-change ${card.positive ? 'positive' : 'negative'}`}>
-                            {card.change}
+                        <span className="stat-value">
+                            {card.isPercent 
+                                ? card.value.toFixed(1) + '%'
+                                : formatCurrency(card.value)}
                         </span>
                     </div>
                 </div>

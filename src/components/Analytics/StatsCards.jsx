@@ -1,6 +1,7 @@
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 
 const StatsCards = ({ income, expense, transactionCount }) => {
+    const { formatCurrency } = useCurrency();
     const savings = income - expense;
     const savingsPercent = income > 0 ? (savings / income) * 100 : 0;
 
@@ -49,7 +50,7 @@ const StatsCards = ({ income, expense, transactionCount }) => {
                         <span className="stat-title">{card.title}</span>
                     </div>
                     <div className="stat-value">
-                        {card.isCount ? card.value : formatNumber(card.value)} ₽
+                        {card.isCount ? card.value : formatCurrency(card.value)}
                     </div>
                     <div className={`stat-change ${card.changePositive ? 'positive' : 'negative'}`}>
                         {card.change} vs прошлый месяц

@@ -1,0 +1,340 @@
+/* Loan Calculator Styles */
+.loan-calculator-page {
+    padding: 20px 24px;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.loan-calculator {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.loan-calculator-header {
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.loan-calculator-header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 8px;
+}
+
+.loan-disclaimer {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.3;
+}
+
+/* Inputs - более компактные */
+.loan-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 0.5fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.loan-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.loan-input-group label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.loan-input-group input {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.loan-input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+/* Summary - компактный */
+.loan-summary-wrapper {
+    margin-bottom: 20px;
+}
+
+.loan-summary-card {
+    background: linear-gradient(135deg, var(--bg-hover) 0%, var(--bg-card) 100%);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+    border: 1px solid var(--border-light);
+}
+
+.loan-summary-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.loan-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    background: var(--bg-dark);
+    border-radius: var(--radius-sm);
+}
+
+.summary-label {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.summary-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.summary-value.highlight {
+    color: var(--primary-light);
+    font-size: 14px;
+}
+
+.summary-value.prepayment {
+    color: var(--warning);
+}
+
+/* Table wrapper - горизонтальная прокрутка только при необходимости */
+.loan-table-wrapper {
+    overflow-x: auto;
+    margin: 0 -4px;
+    padding: 0 4px;
+}
+
+.loan-table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-light);
+    min-width: 100%;
+}
+
+.loan-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    min-width: 900px;
+}
+
+.loan-table th,
+.loan-table td {
+    padding: 6px 4px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
+}
+
+.loan-table th:first-child,
+.loan-table td:first-child {
+    text-align: center;
+    border-left: 1px solid var(--border-light);
+    min-width: 45px;
+}
+
+.loan-table th {
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 10px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.loan-table-header-main th {
+    background: var(--bg-dark);
+    padding: 8px 4px;
+}
+
+.payment-header {
+    background: rgba(17, 100, 102, 0.1);
+}
+
+.loan-table-header-sub th {
+    background: var(--bg-hover);
+    font-weight: 500;
+    font-size: 9px;
+}
+
+.loan-table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.loan-table tbody tr.has-prepayment {
+    background: rgba(255, 203, 154, 0.08);
+}
+
+.month-cell {
+    font-weight: 600;
+    color: var(--primary-light);
+    text-align: center;
+    font-size: 10px;
+}
+
+.remaining-debt,
+.interest-cell,
+.principal-cell,
+.payment-principal,
+.payment-interest,
+.payment-total {
+    font-size: 10px;
+}
+
+.interest-cell {
+    color: var(--warning);
+}
+
+.principal-cell {
+    color: var(--success);
+}
+
+.payment-total {
+    font-weight: 600;
+    color: var(--primary-light);
+}
+
+.empty-row .empty-cell {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 10px;
+}
+
+/* Inputs inside table - более компактные */
+.loan-input-small {
+    width: 85px;
+    min-width: 70px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 10px;
+    text-align: right;
+}
+
+.loan-input-small:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.loan-select-small {
+    width: 85px;
+    min-width: 70px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.new-rate-cell,
+.prepayment-cell,
+.recalc-cell {
+    background: rgba(217, 176, 140, 0.05);
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .loan-calculator-page {
+        padding: 16px;
+    }
+    
+    .loan-inputs {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .loan-summary-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+}
+
+@media (max-width: 600px) {
+    .loan-inputs {
+        grid-template-columns: 1fr;
+    }
+    
+    .loan-calculator {
+        padding: 12px;
+    }
+    
+    .loan-table th,
+    .loan-table td {
+        padding: 4px 3px;
+    }
+    
+    .loan-input-small,
+    .loan-select-small {
+        width: 65px;
+        min-width: 60px;
+        font-size: 9px;
+    }
+}
+
+/* Пустая ячейка для способа пересчета */
+.empty-recalc {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    min-height: 32px;
+}
+
+/* Стиль для select когда он появляется */
+.loan-select-small {
+    width: 100px;
+    min-width: 90px;
+    background: var(--bg-dark);
+    border: 1px solid var(--primary);
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.loan-select-small:hover {
+    border-color: var(--primary-light);
+    background: var(--bg-hover);
+}
+
+.loan-select-small:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-glow);
+}

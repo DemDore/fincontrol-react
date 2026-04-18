@@ -1,24 +1,34 @@
-import { Line, Bar } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
-    BarElement,
     Title,
     Tooltip,
     Legend,
     Filler
 } from 'chart.js';
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const IncomeExpenseChart = ({ chartData, chartType }) => {
-    const labels = chartData.map(d => d.name || d.date || d.label);
-    const incomeData = chartData.map(d => d.income);
-    const expenseData = chartData.map(d => d.expense);
+const IncomeExpenseChart = ({ monthlyData }) => {
+    const { formatCurrency } = useCurrency();
+    
+    // Проверка на пустые данные
+    if (!monthlyData || monthlyData.length === 0) {
+        return (
+            <div className="chart-container empty-chart">
+                <p>Нет данных для отображения</p>
+            </div>
+        );
+    }
+    
+    const labels = monthlyData.map(m => m.name);
+    const incomeData = monthlyData.map(m => m.income || 0);
+    const expenseData = monthlyData.map(m => m.expense || 0);
 
     const data = {
         labels,
@@ -28,30 +38,26 @@ const IncomeExpenseChart = ({ chartData, chartType }) => {
                 data: incomeData,
                 borderColor: '#116466',
                 backgroundColor: 'rgba(17, 100, 102, 0.1)',
-                borderWidth: 2,
                 tension: 0.4,
                 fill: true,
                 pointBackgroundColor: '#116466',
                 pointBorderColor: '#FFFFFF',
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBorderWidth: 2,
-                type: chartType === 'bar' ? 'bar' : 'line'
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBorderWidth: 2
             },
             {
                 label: 'Расходы',
                 data: expenseData,
                 borderColor: '#FFCB9A',
-                backgroundColor: 'rgba(255, 203, 154, 0.1)',
-                borderWidth: 2,
+                backgroundColor: 'rgba(255, 203, 154, 0.05)',
                 tension: 0.4,
                 fill: true,
                 pointBackgroundColor: '#FFCB9A',
                 pointBorderColor: '#FFFFFF',
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                pointBorderWidth: 2,
-                type: chartType === 'bar' ? 'bar' : 'line'
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBorderWidth: 2
             }
         ]
     };
@@ -59,10 +65,6 @@ const IncomeExpenseChart = ({ chartData, chartType }) => {
     const options = {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false,
-        },
         plugins: {
             legend: {
                 position: 'top',
@@ -81,31 +83,19 @@ const IncomeExpenseChart = ({ chartData, chartType }) => {
                 borderWidth: 1,
                 callbacks: {
                     label: function(context) {
-                        return `${context.dataset.label}: ${formatNumber(context.raw)} ₽`;
+                        return `${context.dataset.label}: ${formatCurrency(context.raw)}`;
                     }
                 }
             }
         },
         scales: {
             y: {
-                grid: {
-                    color: 'rgba(255, 255, 255, 0.05)',
-                    drawBorder: false
-                },
-                ticks: {
-                    color: '#A8B3B0',
-                    callback: (value) => formatNumber(value) + ' ₽'
-                }
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#A8B3B0', callback: (value) => formatCurrency(value) }
             },
             x: {
-                grid: {
-                    display: false
-                },
-                ticks: {
-                    color: '#A8B3B0',
-                    maxRotation: 45,
-                    minRotation: 45
-                }
+                grid: { display: false },
+                ticks: { color: '#A8B3B0' }
             }
         }
     };
