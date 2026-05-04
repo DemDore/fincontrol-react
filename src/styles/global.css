@@ -23,7 +23,7 @@ body {
 .main-content {
     flex: 1;
     margin-left: var(--sidebar-width);
-    background: linear-gradient(135deg, var(--bg-dark) 0%, #1e2422 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;

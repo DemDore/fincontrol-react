@@ -15,11 +15,11 @@ const CurrencyTab = () => {
 
     const handleSave = () => {
         updateCurrency(settings);
-        // Обновляем кэш в formatters
-        import('../../utils/formatters').then(module => {
-            module.updateCurrencyCache();
-        });
-        alert('Настройки валюты сохранены!');
+        // Сохраняем флаг, что нужно обновить страницу
+        localStorage.setItem('currency_changed', 'true');
+        alert('Настройки валюты сохранены! Страница будет перезагружена для применения изменений.');
+        // Перезагружаем страницу, чтобы все компоненты обновились
+        window.location.reload();
     };
 
     const previewAmount = 12345.67;
@@ -35,8 +35,8 @@ const CurrencyTab = () => {
                 <select 
                     value={settings.code}
                     onChange={(e) => {
-                        const currency = availableCurrencies.find(c => c.code === e.target.value);
-                        setSettings({ ...settings, code: currency.code, symbol: currency.symbol, name: currency.name });
+                        const selectedCurrency = availableCurrencies.find(c => c.code === e.target.value);
+                        setSettings({ ...settings, code: selectedCurrency.code, symbol: selectedCurrency.symbol, name: selectedCurrency.name });
                     }}
                 >
                     {availableCurrencies.map(curr => (

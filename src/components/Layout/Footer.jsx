@@ -1,10 +1,12 @@
 const Footer = () => {
+    const currentYear = new Date().getFullYear();
+    
     return (
         <footer className="footer">
             <div className="footer-content">
                 <div className="footer-copyright">
                     <span className="footer-logo">💰 FinControl</span>
-                    <p>© 2024 — Управление финансами</p>
+                    <p>© {currentYear} — Управление финансами</p>
                 </div>
                 <div className="footer-links">
                     <a href="#" className="footer-link">📱 Мобильная версия</a>

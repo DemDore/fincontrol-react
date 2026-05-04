@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from '../utils/storage';
 import { useCurrency } from '../hooks/useCurrency';
+import { useNotifications } from '../context/NotificationContext';
 import { 
     getBudgets, 
     saveBudgets, 
@@ -14,6 +15,7 @@ import {
     getCurrentMonth,
     getCurrentYear
 } from '../utils/budgetUtils';
+import { setUpdateBudgetsCallback } from '../utils/storage';
 import OverallBudgetCard from '../components/Budgets/OverallBudgetCard';
 import BudgetTable from '../components/Budgets/BudgetTable';
 import BudgetModal from '../components/Budgets/BudgetModal';
@@ -22,6 +24,7 @@ import '../styles/budgets.css';
 
 const Budgets = () => {
     const { formatCurrency } = useCurrency();
+    const { addNotification } = useNotifications();
     const [transactions, setTransactions] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [overallBudget, setOverallBudget] = useState(50000);
@@ -30,36 +33,79 @@ const Budgets = () => {
     const [editingBudget, setEditingBudget] = useState(null);
     const [dismissedAlerts, setDismissedAlerts] = useState([]);
 
-    useEffect(() => {
-        loadData();
-    }, []);
-
-    useEffect(() => {
-        if (transactions.length > 0 && budgets.length > 0) {
-            updateBudgetsData();
-        }
-    }, [transactions]);
-
-    const loadData = () => {
+    // Функция для обновления всех данных
+    const refreshAllData = () => {
         const allTransactions = getTransactions();
         setTransactions(allTransactions);
         
         const savedBudgets = getBudgets();
         const updatedBudgets = updateBudgetsSpent(savedBudgets, allTransactions);
         setBudgets(updatedBudgets);
+        saveBudgets(updatedBudgets);
         
         const savedOverall = getOverallBudget();
         setOverallBudget(savedOverall);
         
         updateStats(updatedBudgets, savedOverall);
+        
+        // Проверка бюджетов для уведомлений
+        const currentMonth = getCurrentMonth();
+        const currentYear = getCurrentYear();
+        const currentBudgets = updatedBudgets.filter(b => 
+            b.month === currentMonth && b.year === currentYear
+        );
+        
+        currentBudgets.forEach(budget => {
+            const percent = (budget.spent / budget.budget) * 100;
+            
+            if (budget.spent > budget.budget) {
+                addNotification(
+                    '⚠️ Превышение бюджета',
+                    `Бюджет "${budget.category}" превышен на ${Math.round(budget.spent - budget.budget)} ₽`,
+                    'danger'
+                );
+            } else if (percent >= 80) {
+                addNotification(
+                    '⚠️ Внимание!',
+                    `Бюджет "${budget.category}" использован на ${Math.round(percent)}%`,
+                    'warning'
+                );
+            }
+        });
+        
+        const totalSpent = updatedBudgets.reduce((sum, b) => sum + b.spent, 0);
+        const overallPercent = (totalSpent / savedOverall) * 100;
+        if (totalSpent > savedOverall) {
+            addNotification(
+                '📊 Превышение общего бюджета',
+                `Общий бюджет превышен на ${Math.round(totalSpent - savedOverall)} ₽`,
+                'danger'
+            );
+        } else if (overallPercent >= 80) {
+            addNotification(
+                '📊 Внимание!',
+                `Общий бюджет использован на ${Math.round(overallPercent)}%`,
+                'warning'
+            );
+        }
     };
 
-    const updateBudgetsData = () => {
-        const updated = updateBudgetsSpent(budgets, transactions);
-        setBudgets(updated);
-        saveBudgets(updated);
-        updateStats(updated, overallBudget);
-    };
+    // Регистрируем callback для обновления при изменении транзакций
+    useEffect(() => {
+        setUpdateBudgetsCallback(refreshAllData);
+        refreshAllData();
+        
+        // Слушаем событие обновления транзакций
+        const handleTransactionsUpdate = () => {
+            refreshAllData();
+        };
+        window.addEventListener('transactionsUpdated', handleTransactionsUpdate);
+        
+        return () => {
+            setUpdateBudgetsCallback(null);
+            window.removeEventListener('transactionsUpdated', handleTransactionsUpdate);
+        };
+    }, []);
 
     const updateStats = (budgetsData, overall) => {
         const newStats = calculateOverallStats(budgetsData, overall);
@@ -75,11 +121,10 @@ const Budgets = () => {
     const handleSaveBudget = (budgetData) => {
         if (editingBudget) {
             updateBudget(editingBudget.id, budgetData);
-            loadData();
         } else {
             addBudget(budgetData);
-            loadData();
         }
+        refreshAllData();
         setIsModalOpen(false);
         setEditingBudget(null);
     };
@@ -92,7 +137,7 @@ const Budgets = () => {
     const handleDeleteBudget = (id) => {
         if (confirm('Удалить этот бюджет?')) {
             deleteBudget(id);
-            loadData();
+            refreshAllData();
         }
     };
 

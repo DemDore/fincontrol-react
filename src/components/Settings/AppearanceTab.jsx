@@ -15,6 +15,7 @@ const AppearanceTab = () => {
     const handleSave = () => {
         saveAppearanceSettings(settings);
         updateAppearance(settings);
+        window.dispatchEvent(new Event('appearanceUpdated')); 
         alert('Настройки внешнего вида сохранены!');
     };
 

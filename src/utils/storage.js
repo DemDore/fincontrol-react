@@ -2,23 +2,39 @@ const STORAGE_KEYS = {
     TRANSACTIONS: 'fincontrol_transactions'
 };
 
+let updateBudgetsCallback = null;
+
+export function setUpdateBudgetsCallback(callback) {
+    updateBudgetsCallback = callback;
+}
+
 export function getTransactions() {
     const saved = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
     if (saved) return JSON.parse(saved);
     
-    // Демо-данные
+    const getDate = (daysAgo) => {
+        const date = new Date();
+        date.setDate(date.getDate() - daysAgo);
+        return date.toISOString();
+    };
+    
     return [
-        { id: 1, type: 'expense', amount: 1250, category: '🍔 Еда', description: 'Обед в кафе', date: '2024-11-28T14:30:00' },
-        { id: 2, type: 'expense', amount: 450, category: '🚗 Транспорт', description: 'Такси', date: '2024-11-27T09:15:00' },
-        { id: 3, type: 'income', amount: 45000, category: '💼 Зарплата', description: 'Аванс', date: '2024-11-02T10:00:00' },
-        { id: 4, type: 'expense', amount: 4200, category: '🏠 Жильё', description: 'Коммунальные платежи', date: '2024-11-01T12:00:00' },
-        { id: 5, type: 'expense', amount: 3500, category: '🛍️ Шопинг', description: 'Новая одежда', date: '2024-10-30T15:45:00' },
-        { id: 6, type: 'expense', amount: 299, category: '🎮 Развлечения', description: 'Подписка на игры', date: '2024-10-29T08:00:00' }
+        { id: 1, type: 'expense', amount: 1250, category: '🍔 Еда', description: 'Обед в кафе', date: getDate(1) },
+        { id: 2, type: 'expense', amount: 450, category: '🚗 Транспорт', description: 'Такси', date: getDate(2) },
+        { id: 3, type: 'income', amount: 45000, category: '💼 Зарплата', description: 'Аванс', date: getDate(7) },
+        { id: 4, type: 'expense', amount: 4200, category: '🏠 Жильё', description: 'Коммунальные платежи', date: getDate(5) },
+        { id: 5, type: 'expense', amount: 3500, category: '🛍️ Шопинг', description: 'Новая одежда', date: getDate(10) },
+        { id: 6, type: 'expense', amount: 299, category: '🎮 Развлечения', description: 'Подписка на игры', date: getDate(15) },
+        { id: 7, type: 'expense', amount: 800, category: '🍔 Еда', description: 'Ужин в ресторане', date: getDate(3) },
+        { id: 8, type: 'income', amount: 15000, category: '💸 Фриланс', description: 'Проект', date: getDate(14) },
     ];
 }
 
 export function saveTransactions(transactions) {
     localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+    if (updateBudgetsCallback) {
+        updateBudgetsCallback();
+    }
 }
 
 export function addTransaction(transaction) {
@@ -44,3 +60,4 @@ export function deleteTransaction(id) {
     const filtered = transactions.filter(t => t.id !== id);
     saveTransactions(filtered);
 }
+

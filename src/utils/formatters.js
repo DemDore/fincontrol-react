@@ -31,6 +31,12 @@ export function formatCurrency(amount) {
     }
 }
 
+// Функция для прямого форматирования с указанием валюты (для кредитного калькулятора)
+export function formatCurrencyWithSymbol(amount, symbol = '₽') {
+    const formattedAmount = formatNumber(Math.round(amount));
+    return `${formattedAmount} ${symbol}`;
+}
+
 export function formatDate(dateString) {
     const date = new Date(dateString);
     const today = new Date();

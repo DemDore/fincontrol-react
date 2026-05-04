@@ -110,8 +110,8 @@ const LoanTable = ({
                                             value={prepaymentData.recalcType || 'payment'}
                                             onChange={(e) => handleRecalcTypeChange(row.month, e.target.value)}
                                         >
-                                            <option value="payment">📉 Платеж</option>
-                                            <option value="term">📅 Срок кредита</option>
+                                            <option value="payment"> Платеж</option>
+                                            <option value="term"> Срок кредита</option>
                                         </select>
                                     ) : (
                                         <span className="empty-recalc">—</span>

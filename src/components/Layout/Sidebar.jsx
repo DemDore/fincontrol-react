@@ -6,15 +6,16 @@ const Sidebar = () => {
     const { profile } = useProfile();
     const [forceUpdate, setForceUpdate] = useState(0);
     
-    const navItems = [
-        { path: '/', icon: '📊', label: 'Главная' },
-        { path: '/transactions', icon: '💸', label: 'Транзакции' },
-        { path: '/categories', icon: '🏷️', label: 'Категории' },
-        { path: '/analytics', icon: '📈', label: 'Аналитика' },
-        { path: '/budgets', icon: '🎯', label: 'Бюджеты' },
-        { path: '/loan-calculator', icon: '🏦', label: 'Кредитный калькулятор' },
-        { path: '/settings', icon: '⚙️', label: 'Настройки' },
-    ];
+const navItems = [
+    { path: '/', icon: '📊', label: 'Главная' },
+    { path: '/transactions', icon: '💸', label: 'Транзакции' },
+    { path: '/categories', icon: '🏷️', label: 'Категории' },
+    { path: '/analytics', icon: '📈', label: 'Аналитика' },
+    { path: '/budgets', icon: '🎯', label: 'Бюджеты' },
+    { path: '/loan-calculator', icon: '🏦', label: 'Кредитный калькулятор' },
+    { path: '/notes', icon: '📝', label: 'Заметки' },      
+    { path: '/settings', icon: '⚙️', label: 'Настройки' },
+];
 
     useEffect(() => {
         const handleProfileUpdate = () => {
@@ -65,7 +66,21 @@ const Sidebar = () => {
                         <div className="user-name">{profile.name}</div>
                         <div className="user-email">{profile.email}</div>
                     </div>
-                    <button className="logout-btn" title="Выйти">🚪</button>
+                    <button 
+                        className="logout-btn" 
+                        title="Выйти"
+                        onClick={() => {
+                            if (confirm('Вы уверены, что хотите выйти?')) {
+                                // В демо-режиме просто показываем сообщение
+                                alert('Демо-режим: выход не требует авторизации');
+                                // При желании можно очистить данные сессии
+                                // localStorage.clear();
+                                // window.location.reload();
+                            }
+                        }}
+                    >
+                        🚪
+                    </button>
                 </div>
             </div>
         </aside>

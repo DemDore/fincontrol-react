@@ -13,7 +13,7 @@ const LoanSummary = ({ monthlyPayment, totalInterest, totalPrepayment, loanAmoun
     return (
         <div className="loan-summary">
             <div className="loan-summary-card">
-                <h3>📊 Сводка по кредиту</h3>
+                <h3> Сводка по кредиту</h3>
                 <div className="loan-summary-grid">
                     <div className="summary-item">
                         <span className="summary-label">Ежемесячный платеж:</span>

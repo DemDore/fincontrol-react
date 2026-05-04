@@ -11,11 +11,13 @@ import {
     Filler
 } from 'chart.js';
 import { useCurrency } from '../../hooks/useCurrency';
+import { useThemeColors } from '../../hooks/useThemeColors';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const Chart = ({ transactions, period, onPeriodChange }) => {
     const { formatCurrency } = useCurrency();
+    const colors = useThemeColors();
 
     const groupByMonth = (transactionsList, monthsCount = 6) => {
         const months = [];
@@ -133,11 +135,11 @@ const Chart = ({ transactions, period, onPeriodChange }) => {
             {
                 label: 'Доходы',
                 data: incomeData,
-                borderColor: '#116466',
-                backgroundColor: 'rgba(17, 100, 102, 0.1)',
+                borderColor: colors.primary,
+                backgroundColor: `${colors.primary}1A`, // добавляем прозрачность (16进制 + 1A = 10% opacity)
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#116466',
+                pointBackgroundColor: colors.primary,
                 pointBorderColor: '#FFFFFF',
                 pointRadius: 5,
                 pointHoverRadius: 7,
@@ -146,11 +148,11 @@ const Chart = ({ transactions, period, onPeriodChange }) => {
             {
                 label: 'Расходы',
                 data: expenseData,
-                borderColor: '#FFCB9A',
-                backgroundColor: 'rgba(255, 203, 154, 0.05)',
+                borderColor: colors.warning,
+                backgroundColor: `${colors.warning}0D`, // 5% opacity
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#FFCB9A',
+                pointBackgroundColor: colors.warning,
                 pointBorderColor: '#FFFFFF',
                 pointRadius: 5,
                 pointHoverRadius: 7,
@@ -180,7 +182,7 @@ const Chart = ({ transactions, period, onPeriodChange }) => {
                 backgroundColor: '#242a28',
                 titleColor: '#FFFFFF',
                 bodyColor: '#A8B3B0',
-                borderColor: '#116466',
+                borderColor: colors.primary,
                 borderWidth: 1,
                 callbacks: {
                     label: function(context) {

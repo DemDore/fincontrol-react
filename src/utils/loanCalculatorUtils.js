@@ -1,3 +1,6 @@
+import { formatCurrency, formatCurrencyWithSymbol } from './formatters';
+import { getCurrencySettings } from './settingsUtils';
+
 // Расчет аннуитетного платежа
 export function calculateAnnuityPayment(loanAmount, annualRate, months) {
     if (loanAmount <= 0) return 0;
@@ -11,13 +14,11 @@ export function calculateAnnuityPayment(loanAmount, annualRate, months) {
 export function calculatePaymentSchedule(loanAmount, annualRate, months, prepayments = {}) {
     const monthlyRate = annualRate / 12 / 100;
     let remainingDebt = loanAmount;
-    let schedule = [];
     let totalInterest = 0;
     let currentMonthlyPayment = calculateAnnuityPayment(loanAmount, annualRate, months);
     let currentMonthsLeft = months;
     let effectiveRate = annualRate;
     
-    // Сортируем досрочные погашения по месяцам
     const sortedPrepayments = Object.entries(prepayments)
         .filter(([_, data]) => data && data.amount > 0)
         .map(([month, data]) => ({
@@ -32,13 +33,12 @@ export function calculatePaymentSchedule(loanAmount, annualRate, months, prepaym
     let currentMonth = 1;
     let lastPrepaymentProcessed = false;
     
-    while (remainingDebt > 0.01 && currentMonth <= 600) { // Максимум 50 лет
-        // Проверяем, есть ли досрочное погашение в этом месяце
+    while (remainingDebt > 0.01 && currentMonth <= 600) {
         const prepayment = sortedPrepayments.find(p => p.month === currentMonth);
         if (prepayment && !prepayment.recalcType) {
             prepayment.recalcType = 'payment';
         }
-        // Расчет процентов за текущий месяц
+        
         const interest = remainingDebt * monthlyRate;
         let principal = currentMonthlyPayment - interest;
         if (principal < 0) principal = 0;
@@ -47,11 +47,9 @@ export function calculatePaymentSchedule(loanAmount, annualRate, months, prepaym
         let actualPrincipal = principal;
         let actualPrepayment = 0;
         
-        // Если есть досрочное погашение
         if (prepayment && prepayment.amount > 0 && !lastPrepaymentProcessed) {
             actualPrepayment = prepayment.amount;
             
-            // Применяем досрочное погашение
             remainingDebt = remainingDebt - actualPrincipal - actualPrepayment;
             if (remainingDebt < 0) {
                 actualPrincipal = actualPrincipal + remainingDebt;
@@ -59,14 +57,12 @@ export function calculatePaymentSchedule(loanAmount, annualRate, months, prepaym
                 remainingDebt = 0;
             }
             
-            // Применяем новую процентную ставку если есть
             if (prepayment.newRate && prepayment.newRate > 0) {
                 effectiveRate = prepayment.newRate;
                 const newMonthlyRate = effectiveRate / 12 / 100;
                 const remainingMonths = currentMonthsLeft - currentMonth;
                 
                 if (prepayment.recalcType === 'payment' && remainingDebt > 0 && remainingMonths > 0) {
-                    // Пересчет платежа (срок остается)
                     if (newMonthlyRate === 0) {
                         currentMonthlyPayment = remainingDebt / remainingMonths;
                     } else {
@@ -74,7 +70,6 @@ export function calculatePaymentSchedule(loanAmount, annualRate, months, prepaym
                         currentMonthlyPayment = remainingDebt * annuity;
                     }
                 } else if (prepayment.recalcType === 'term' && remainingDebt > 0 && currentMonthlyPayment > 0) {
-                    // Пересчет срока (платеж остается)
                     if (newMonthlyRate === 0) {
                         currentMonthsLeft = currentMonth + Math.ceil(remainingDebt / currentMonthlyPayment);
                     } else {
@@ -89,7 +84,6 @@ export function calculatePaymentSchedule(loanAmount, annualRate, months, prepaym
             
             lastPrepaymentProcessed = true;
         } else {
-            // Обычный платеж без досрочного погашения
             remainingDebt = remainingDebt - actualPrincipal;
             if (remainingDebt < 0) {
                 actualPrincipal = actualPrincipal + remainingDebt;
@@ -124,13 +118,20 @@ export function calculatePaymentSchedule(loanAmount, annualRate, months, prepaym
     };
 }
 
-// Форматирование денег
+// Форматирование денег (теперь использует выбранную валюту)
 export function formatMoney(value) {
     if (isNaN(value) || value === null || value === undefined) return '0.00 ₽';
-    return new Intl.NumberFormat('ru-RU', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(value) + ' ₽';
+    try {
+        return formatCurrency(value);
+    } catch (e) {
+        // fallback на случай ошибки
+        const currency = getCurrencySettings();
+        const formatted = new Intl.NumberFormat('ru-RU', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+        return `${formatted} ${currency.symbol || '₽'}`;
+    }
 }
 
 // Форматирование процентов

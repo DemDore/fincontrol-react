@@ -32,7 +32,7 @@ const RecentTransactions = ({ transactions }) => {
             <div className="transactions-list">
                 {recent.map(transaction => (
                     <div key={transaction.id} className="transaction-item">
-                        <div className="transaction-icon">{transaction.category?.split(' ')[0] || '💸'}</div>
+                        
                         <div className="transaction-details">
                             <div className="transaction-category">{transaction.category}</div>
                             <div className="transaction-date">{formatDate(transaction.date)}</div>

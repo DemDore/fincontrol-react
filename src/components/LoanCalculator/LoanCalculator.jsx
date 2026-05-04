@@ -43,7 +43,7 @@ const LoanCalculator = () => {
     return (
         <div className="loan-calculator">
             <div className="loan-calculator-header">
-                <h1>📊 График погашения кредита</h1>
+                <h1> График погашения кредита</h1>
                 <p className="loan-disclaimer">
                     * Расчеты в графике являются предварительными и носят информационный характер. 
                     Фактические платежи могут отличаться из-за дат списания, округлений и индивидуальных условий банка. 
@@ -53,7 +53,7 @@ const LoanCalculator = () => {
 
             <div className="loan-inputs">
                 <div className="loan-input-group">
-                    <label>💰 Сумма кредита</label>
+                    <label> Сумма кредита</label>
                     <input 
                         type="number"
                         value={loanAmount}
@@ -62,7 +62,7 @@ const LoanCalculator = () => {
                     />
                 </div>
                 <div className="loan-input-group">
-                    <label>📈 Процентная ставка</label>
+                    <label> Процентная ставка</label>
                     <input 
                         type="number"
                         value={interestRate}
@@ -71,7 +71,7 @@ const LoanCalculator = () => {
                     />
                 </div>
                 <div className="loan-input-group">
-                    <label>⏱️ Срок кредита</label>
+                    <label>⏱ Срок кредита (на сколько лет)</label>
                     <input 
                         type="number"
                         value={loanTerm}
@@ -80,7 +80,7 @@ const LoanCalculator = () => {
                     />
                 </div>
                 <div className="loan-input-group">
-                    <label>📅 Лет</label>
+                    <label> </label>
                     <span className="loan-input-suffix"></span>
                 </div>
             </div>

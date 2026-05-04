@@ -1,0 +1,249 @@
+/* Calendar Widget */
+.calendar-widget {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    border: 1px solid var(--border-light);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-nav {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+}
+
+.calendar-nav:hover {
+    background: var(--bg-hover);
+    color: var(--primary);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 8px 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+/* Ячейка календаря по умолчанию */
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg-hover);
+}
+
+.calendar-day.empty {
+    background: transparent;
+    cursor: default;
+}
+
+/* Номер дня по умолчанию */
+.day-number {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Наведение */
+.calendar-day:hover {
+    background: var(--primary) !important;
+}
+
+.calendar-day:hover .day-number {
+    color: white !important;
+}
+
+/* ВЫБРАННАЯ ДАТА */
+.calendar-day.selected {
+    background: var(--primary) !important;
+}
+
+.calendar-day.selected .day-number {
+    color: white !important;
+}
+
+/* СЕГОДНЯШНЯЯ ДАТА (не выбранная) */
+.calendar-day.today {
+    border: 2px solid var(--primary);
+    background: transparent !important;
+}
+
+.calendar-day.today .day-number {
+    color: var(--primary) !important;
+    font-weight: 700;
+}
+
+/* СЕГОДНЯШНЯЯ + ВЫБРАННАЯ */
+.calendar-day.selected.today {
+    background: var(--primary) !important;
+}
+
+.calendar-day.selected.today .day-number {
+    color: white !important;
+}
+
+/* ДАТЫ С ЗАМЕТКАМИ (номер тёмно-зелёный) */
+.calendar-day.has-notes .day-number {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+/* Точка-индикатор заметки */
+.note-dot {
+    position: absolute;
+    bottom: 4px;
+    font-size: 8px;
+    color: var(--primary);
+}
+
+/* Список заметок под календарём */
+.calendar-notes-list {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+.notes-list-header h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.notes-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.notes-empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.note-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px;
+    background: var(--bg-hover);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+}
+
+.note-content {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+    word-break: break-word;
+}
+
+.note-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.note-item:hover .note-actions {
+    opacity: 1;
+}
+
+.note-edit-btn,
+.note-delete-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+}
+
+.note-edit-btn:hover {
+    background: rgba(17, 100, 102, 0.2);
+}
+
+.note-delete-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+}
+
+/* Форма добавления заметки */
+.add-note-form {
+    margin-top: 12px;
+}
+
+.note-input {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    color: var(--text-primary);
+    font-size: 13px;
+    resize: vertical;
+    margin-bottom: 8px;
+}
+
+.note-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.add-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .calendar-widget {
+        margin-top: 20px;
+    }
+}

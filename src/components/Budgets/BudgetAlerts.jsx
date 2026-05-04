@@ -1,6 +1,7 @@
-import { formatNumber } from '../../utils/formatters';
+import { useCurrency } from '../../hooks/useCurrency';
 
 const BudgetAlerts = ({ budgets, onEdit, onDelete, onDismiss }) => {
+    const { formatCurrency } = useCurrency();
     const overBudgetItems = budgets.filter(b => b.spent > b.budget);
     
     if (overBudgetItems.length === 0) return null;
@@ -21,7 +22,7 @@ const BudgetAlerts = ({ budgets, onEdit, onDelete, onDismiss }) => {
                             <div className="alert-content">
                                 <div className="alert-title">{budget.category}</div>
                                 <div className="alert-message">
-                                    Превышен на <strong>{formatNumber(overspent)} ₽</strong> ({percent.toFixed(0)}%)
+                                    Превышен на <strong>{formatCurrency(overspent)}</strong> ({percent.toFixed(0)}%)
                                 </div>
                             </div>
                             <div className="alert-actions">

@@ -11,12 +11,14 @@ import Analytics from './pages/Analytics'
 import Budgets from './pages/Budgets'
 import Settings from './pages/Settings'
 import LoanCalculatorPage from './pages/LoanCalculatorPage'
+import Notes from './pages/Notes'  // <-- ДОБАВИТЬ
 import './styles/dashboard.css'
 import './styles/categories.css'
 import './styles/analytics.css'
 import './styles/budgets.css'
 import './styles/settings.css'
 import './styles/loanCalculator.css'
+import './styles/notes.css'  // <-- ДОБАВИТЬ
 
 function AppContent() {
     const { appearance } = useProfile();
@@ -40,6 +42,7 @@ function AppContent() {
                     <Route path="/budgets" element={<Budgets />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/loan-calculator" element={<LoanCalculatorPage />} />
+                    <Route path="/notes" element={<Notes />} />  
                 </Routes>
                 <Footer />
             </main>

@@ -11,7 +11,7 @@
 
 .tab-btn {
     background: var(--bg-card);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-light);
     padding: 10px 24px;
     border-radius: var(--radius-md);
     color: var(--text-secondary);
@@ -51,7 +51,7 @@
     background: var(--bg-card);
     border-radius: var(--radius-xl);
     padding: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
 }
 
 .categories-header {
@@ -60,7 +60,7 @@
     align-items: center;
     margin-bottom: 24px;
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-light);
 }
 
 .categories-header h3 {
@@ -84,29 +84,29 @@
     gap: 20px;
 }
 
-/* Category Card */
+/* Category Card - ИСПРАВЛЕНО ДЛЯ СВЕТЛОЙ ТЕМЫ */
 .category-card {
     display: flex;
     align-items: center;
     gap: 16px;
     padding: 16px 20px;
-    background: var(--bg-hover);
+    background: var(--bg-card);
     border-radius: var(--radius-lg);
     transition: all 0.25s ease;
-    border: 1px solid transparent;
+    border: 1px solid var(--border-light);
     cursor: pointer;
 }
 
 .category-card:hover {
-    border-color: rgba(17, 100, 102, 0.4);
+    border-color: var(--primary);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-sm);
 }
 
 .category-card-icon {
     width: 52px;
     height: 52px;
-    background: linear-gradient(135deg, rgba(17, 100, 102, 0.2) 0%, rgba(17, 100, 102, 0.1) 100%);
+    background: linear-gradient(135deg, rgba(17, 100, 102, 0.1) 0%, rgba(17, 100, 102, 0.05) 100%);
     border-radius: var(--radius-md);
     display: flex;
     align-items: center;
@@ -199,7 +199,7 @@
     color: var(--text-muted);
 }
 
-/* Modal Styles (дополнение к существующим) */
+/* Modal Styles */
 .icon-selector {
     display: flex;
     flex-wrap: wrap;
@@ -209,7 +209,7 @@
     padding: 12px;
     background: var(--bg-dark);
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-light);
 }
 
 .icon-selector::-webkit-scrollbar {
@@ -249,11 +249,6 @@
     border-color: var(--primary);
     background: rgba(17, 100, 102, 0.25);
     box-shadow: 0 0 10px rgba(17, 100, 102, 0.3);
-}
-
-/* Form group spacing for modal */
-.modal-content .form-group:first-of-type {
-    margin-top: 8px;
 }
 
 /* Responsive */

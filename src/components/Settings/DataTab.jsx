@@ -6,40 +6,60 @@ const DataTab = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const handleExport = (format) => {
-        const transactions = getTransactions();
-        let data, filename, mimeType;
+    const transactions = getTransactions();
+    let data, filename, mimeType;
+    
+    if (format === 'csv') {
+        const headers = ['"Дата"', '"Тип"', '"Категория"', '"Описание"', '"Сумма"'];
+        const rows = transactions.map(t => [
+            `"${new Date(t.date).toLocaleDateString('ru-RU')}"`,
+            `"${t.type === 'income' ? 'Доход' : 'Расход'}"`,
+            `"${t.category?.replace(/^[^\s]+\s/, '') || '-'}"`,
+            `"${t.description || '-'}"`,
+            t.amount.toFixed(2)
+        ]);
         
-        if (format === 'csv') {
-            const headers = ['Дата', 'Тип', 'Категория', 'Описание', 'Сумма'];
-            const rows = transactions.map(t => [
-                t.date,
-                t.type === 'income' ? 'Доход' : 'Расход',
-                t.category,
-                t.description || '',
-                t.amount
-            ]);
-            const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
-            data = csv;
-            filename = 'transactions.csv';
-            mimeType = 'text/csv';
-        } else {
-            data = JSON.stringify(transactions, null, 2);
-            filename = 'transactions.json';
-            mimeType = 'application/json';
-        }
+        // Добавляем сводку в начало файла
+        const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+        const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+        const balance = totalIncome - totalExpense;
         
-        const blob = new Blob([data], { type: `${mimeType};charset=utf-8;` });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        const summary = [
+            ['"ФИНАНСОВЫЙ ОТЧЁТ FinControl"'],
+            [`"Дата экспорта: ${new Date().toLocaleDateString('ru-RU')}"`],
+            [],
+            ['"СВОДКА"'],
+            ['"Всего доходов"', totalIncome.toFixed(2)],
+            ['"Всего расходов"', totalExpense.toFixed(2)],
+            ['"Чистый баланс"', balance.toFixed(2)],
+            ['"Всего транзакций"', transactions.length],
+            [],
+            ['"ДЕТАЛИЗАЦИЯ"'],
+            headers
+        ];
         
-        alert(`Данные экспортированы в файл ${filename}`);
-    };
+        const csvRows = [...summary, ...rows];
+        data = csvRows.map(row => row.join(';')).join('\n');
+        filename = `fincontrol_transactions_${new Date().toISOString().split('T')[0]}.csv`;
+        mimeType = 'text/csv';
+    } else {
+        data = JSON.stringify(transactions, null, 2);
+        filename = `fincontrol_transactions_${new Date().toISOString().split('T')[0]}.json`;
+        mimeType = 'application/json';
+    }
+    
+    const blob = new Blob(['\uFEFF' + data], { type: `${mimeType};charset=utf-8;` });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert(`Данные экспортированы в файл ${filename}`);
+};
 
     const handleImport = (event) => {
         const file = event.target.files[0];

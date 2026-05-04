@@ -126,6 +126,10 @@ const Transactions = () => {
         setTransactions(newTransactions);
         setIsModalOpen(false);
         setEditingTransaction(null);
+        
+        // ========== ДОБАВИТЬ ЭТУ СТРОКУ ==========
+        window.dispatchEvent(new Event('transactionsUpdated'));
+        // ========================================
     };
 
     const handleEdit = (transaction) => {
@@ -138,6 +142,7 @@ const Transactions = () => {
             deleteTransaction(id);
             loadTransactions();
         }
+        window.dispatchEvent(new Event('transactionsUpdated'));
     };
 
     const handleResetFilters = () => {

@@ -1,21 +1,21 @@
 /* Светлая тема (по умолчанию) */
 :root {
     /* Светлая тема */
-    --bg-dark: #f5f7f5;
+    --bg-dark: #f8faf8;
     --bg-card: #ffffff;
     --bg-sidebar: #ffffff;
-    --bg-hover: #e8ece8;
-    --text-primary: #1a1f1e;
-    --text-secondary: #4a5b56;
-    --text-muted: #8a9b96;
+    --bg-hover: #eef2ee;
+    --text-primary: #1a2c2a;
+    --text-secondary: #4a6b64;
+    --text-muted: #8b9e98;
     --border-light: #e2e8e2;
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
     
     /* Акцентные цвета */
     --primary: #116466;
     --primary-light: #148a8c;
-    --primary-glow: rgba(17, 100, 102, 0.1);
+    --primary-glow: rgba(17, 100, 102, 0.08);
     --secondary: #FFCB9A;
     --accent: #D9B08C;
     
@@ -30,6 +30,10 @@
     --radius-md: 12px;
     --radius-lg: 20px;
     --radius-xl: 24px;
+    
+    /* Градиент фона для светлой темы */
+    --bg-gradient-start: #f8faf8;
+    --bg-gradient-end: #eef2ee;
 }
 
 /* Тёмная тема */
@@ -45,6 +49,8 @@
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
     --danger: #FF6B6B;
+    --bg-gradient-start: #1a1f1e;
+    --bg-gradient-end: #1e2422;
 }
 
 /* Акцентные цвета (переопределяются через data-accent) */
@@ -68,8 +74,8 @@
 
 /* Дополнительные переменные для кнопок */
 :root {
-    --btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --btn-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.12);
+    --btn-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --btn-shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="dark"] {
