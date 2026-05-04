@@ -13,26 +13,52 @@ const Dashboard = () => {
     const [transactions, setTransactions] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [chartPeriod, setChartPeriod] = useState('all');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         loadTransactions();
-        setBudgets(getBudgets());
+        loadBudgets();
         
         const handleStorageChange = () => {
             loadTransactions();
+            loadBudgets();
         };
         
         window.addEventListener('storage', handleStorageChange);
-        return () => window.removeEventListener('storage', handleStorageChange);
+        window.addEventListener('transactionsUpdated', handleStorageChange);
+        
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('transactionsUpdated', handleStorageChange);
+        };
     }, []);
 
-    const loadTransactions = () => {
-        const allTransactions = getTransactions();
-        setTransactions(allTransactions);
+    const loadTransactions = async () => {
+        try {
+            const allTransactions = await getTransactions();
+            setTransactions(allTransactions);
+        } catch (error) {
+            console.error('Ошибка загрузки транзакций:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
+    const loadBudgets = async () => {
+        try {
+            const allBudgets = await getBudgets();
+            setBudgets(allBudgets);
+        } catch (error) {
+            console.error('Ошибка загрузки бюджетов:', error);
+        }
+    };
+
+    if (loading) {
+        return <div className="content dashboard-page">Загрузка...</div>;
+    }
+
     return (
-        <div className="content dashboard-page">   {/* ← ТОЛЬКО ЭТУ СТРОКУ ИЗМЕНИТЬ */}
+        <div className="content dashboard-page">
             <StatsCards transactions={transactions} />
             
             <div className="dashboard-main-layout">

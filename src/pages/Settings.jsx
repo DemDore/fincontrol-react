@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useProfile } from '../context/ProfileContext';
+import { useAuth } from '../context/AuthContext';
 import SettingsTabs from '../components/Settings/SettingsTabs';
 import ProfileTab from '../components/Settings/ProfileTab';
 import CurrencyTab from '../components/Settings/CurrencyTab';
@@ -9,6 +11,8 @@ import '../styles/settings.css';
 
 const Settings = () => {
     const [activeTab, setActiveTab] = useState('profile');
+    const { updateProfile } = useProfile();
+    const { user: authUser } = useAuth();
 
     const renderTab = () => {
         switch(activeTab) {

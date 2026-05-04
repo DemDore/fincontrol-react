@@ -1,9 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { 
-    getProfile, saveProfile, 
-    getAppearanceSettings, saveAppearanceSettings, applyTheme,
-    getCurrencySettings, saveCurrencySettings
-} from '../utils/settingsUtils';
+import { settingsAPI } from '../services/api';
+import { getProfile, saveProfile, getAppearanceSettings, saveAppearanceSettings, applyTheme, getCurrencySettings, saveCurrencySettings } from '../utils/settingsUtils';
+import { useAuth } from './AuthContext';
 
 const ProfileContext = createContext();
 
@@ -12,49 +10,85 @@ export function ProfileProvider({ children }) {
     const [appearance, setAppearance] = useState(null);
     const [currency, setCurrency] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { user: authUser } = useAuth();
 
     useEffect(() => {
-        loadProfile();
-        loadAppearance();
-        loadCurrency();
-    }, []);
+        const loadSettings = async () => {
+            try {
+                // Если есть авторизованный пользователь - берём данные из него
+                if (authUser) {
+                    setProfile({
+                        name: authUser.name || 'Пользователь',
+                        email: authUser.email || '',
+                        avatar: '👤'
+                    });
+                } else {
+                    // Иначе загружаем локальные настройки
+                    const savedProfile = getProfile();
+                    setProfile(savedProfile);
+                }
+                
+                const savedAppearance = getAppearanceSettings();
+                const savedCurrency = getCurrencySettings();
+                setAppearance(savedAppearance);
+                setCurrency(savedCurrency);
+                applyTheme(savedAppearance);
+            } catch (error) {
+                console.error('Ошибка загрузки настроек:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        loadSettings();
+    }, [authUser]);
 
-    const loadProfile = () => {
-        const saved = getProfile();
-        setProfile(saved);
-    };
-
-    const loadAppearance = () => {
-        const saved = getAppearanceSettings();
-        setAppearance(saved);
-        applyTheme(saved);
-    };
-
-    const loadCurrency = () => {
-        const saved = getCurrencySettings();
-        setCurrency(saved);
-    };
-
-    const updateProfile = (newProfile) => {
+    const updateProfile = async (newProfile) => {
         saveProfile(newProfile);
         setProfile(newProfile);
         window.dispatchEvent(new Event('profileUpdated'));
     };
 
-    const updateAppearance = (newAppearance) => {
+    const updateAppearance = async (newAppearance) => {
         saveAppearanceSettings(newAppearance);
         setAppearance(newAppearance);
         applyTheme(newAppearance);
+        
+        if (authUser) {
+            try {
+                await settingsAPI.update({
+                    darkMode: newAppearance.darkMode,
+                    accentColor: newAppearance.accentColor,
+                    density: newAppearance.density
+                });
+            } catch (error) {
+                console.error('Ошибка сохранения настроек на сервере:', error);
+            }
+        }
     };
 
-    const updateCurrency = (newCurrency) => {
+    const updateCurrency = async (newCurrency) => {
         saveCurrencySettings(newCurrency);
         setCurrency(newCurrency);
+        
+        if (authUser) {
+            try {
+                await settingsAPI.update({
+                    currency: {
+                        code: newCurrency.code,
+                        symbol: newCurrency.symbol
+                    }
+                });
+            } catch (error) {
+                console.error('Ошибка сохранения валюты на сервере:', error);
+            }
+        }
+        
         window.dispatchEvent(new Event('currencyUpdated'));
     };
 
-    if (loading && !profile) {
-        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#1a1f1e', color: 'white' }}>Загрузка...</div>;
+    if (loading) {
+        return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'var(--bg-dark)', color: 'white' }}>Загрузка...</div>;
     }
 
     return (
@@ -65,7 +99,7 @@ export function ProfileProvider({ children }) {
             updateProfile, 
             updateAppearance,
             updateCurrency,
-            loadProfile 
+            loadProfile: () => {}
         }}>
             {children}
         </ProfileContext.Provider>

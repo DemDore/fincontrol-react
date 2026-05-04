@@ -1,15 +1,44 @@
 import { useState } from 'react';
-import { useProfile } from '../../context/ProfileContext';
+import { useAuth } from '../../context/AuthContext';
+import { profileAPI } from '../../services/api';
 import ChangePasswordModal from './ChangePasswordModal';
 
 const ProfileTab = () => {
-    const { profile, updateProfile } = useProfile();
-    const [localProfile, setLocalProfile] = useState(profile);
+    const { user, updateUser } = useAuth();
+    const [localProfile, setLocalProfile] = useState({
+        name: user?.name || '',
+        email: user?.email || '',
+        avatar: '👤'
+    });
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [saving, setSaving] = useState(false);
 
-    const handleSave = () => {
-        updateProfile(localProfile);
-        alert('Профиль сохранён!');
+    const handleSave = async () => {
+        if (!localProfile.name.trim()) {
+            alert('Имя не может быть пустым');
+            return;
+        }
+        
+        setSaving(true);
+        try {
+            const response = await profileAPI.update({
+                name: localProfile.name,
+                email: localProfile.email
+            });
+            
+            if (response.token && response.user) {
+                // Сохраняем новый токен
+                localStorage.setItem('token', response.token);
+                // Обновляем пользователя в контексте
+                updateUser(response.user);
+                alert('Профиль успешно обновлён!');
+            }
+        } catch (error) {
+            console.error('Ошибка обновления профиля:', error);
+            alert('Ошибка при обновлении профиля: ' + error.message);
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -58,8 +87,8 @@ const ProfileTab = () => {
             </div>
 
             <div className="settings-actions">
-                <button className="btn-primary" onClick={handleSave}>
-                    💾 Сохранить изменения
+                <button className="btn-primary" onClick={handleSave} disabled={saving}>
+                    {saving ? 'Сохранение...' : '💾 Сохранить изменения'}
                 </button>
             </div>
 

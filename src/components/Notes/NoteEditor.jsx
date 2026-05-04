@@ -6,7 +6,7 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import './NoteEditor.css';
 
 const MenuButton = ({ onClick, active, children, title }) => (
@@ -21,18 +21,17 @@ const MenuButton = ({ onClick, active, children, title }) => (
 );
 
 const NoteEditor = ({ content, onChange }) => {
-    const debouncedOnChange = useCallback(
-        (() => {
-            let timeout;
-            return (html) => {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    onChange(html);
-                }, 500);
-            };
-        })(),
-        [onChange]
-    );
+    const isInternalUpdateRef = useRef(false);
+    const saveTimeoutRef = useRef(null);
+
+    const debouncedSave = useCallback((html) => {
+        if (saveTimeoutRef.current) {
+            clearTimeout(saveTimeoutRef.current);
+        }
+        saveTimeoutRef.current = setTimeout(() => {
+            onChange(html);
+        }, 500);
+    }, [onChange]);
 
     const editor = useEditor({
         extensions: [
@@ -41,7 +40,7 @@ const NoteEditor = ({ content, onChange }) => {
                     levels: [1, 2, 3, 4]
                 }
             }),
-            Underline, // Только один раз!
+            Underline,
             Highlight.configure({
                 multicolor: true,
             }),
@@ -57,13 +56,20 @@ const NoteEditor = ({ content, onChange }) => {
         ],
         content: content || '<p>Начните писать...</p>',
         onUpdate: ({ editor }) => {
-            debouncedOnChange(editor.getHTML());
+            if (!isInternalUpdateRef.current) {
+                debouncedSave(editor.getHTML());
+            }
         },
     });
 
+    // Обновляем редактор только если контент изменился не из-за внутреннего обновления
     useEffect(() => {
         if (editor && content !== editor.getHTML()) {
+            isInternalUpdateRef.current = true;
             editor.commands.setContent(content || '<p>Начните писать...</p>');
+            setTimeout(() => {
+                isInternalUpdateRef.current = false;
+            }, 100);
         }
     }, [content, editor]);
 
@@ -72,7 +78,6 @@ const NoteEditor = ({ content, onChange }) => {
     return (
         <div className="note-editor">
             <div className="editor-toolbar">
-                {/* Заголовки */}
                 <div className="toolbar-group">
                     <MenuButton
                         onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
@@ -104,7 +109,6 @@ const NoteEditor = ({ content, onChange }) => {
                     </MenuButton>
                 </div>
 
-                {/* Форматирование текста */}
                 <div className="toolbar-group">
                     <MenuButton
                         onClick={() => editor.chain().focus().toggleBold().run()}
@@ -136,7 +140,6 @@ const NoteEditor = ({ content, onChange }) => {
                     </MenuButton>
                 </div>
 
-                {/* Цвет текста */}
                 <div className="toolbar-group">
                     <select
                         className="menu-select"
@@ -163,7 +166,6 @@ const NoteEditor = ({ content, onChange }) => {
                     </select>
                 </div>
 
-                {/* Маркер (выделение цветом) */}
                 <div className="toolbar-group">
                     <select
                         className="menu-select"
@@ -186,7 +188,6 @@ const NoteEditor = ({ content, onChange }) => {
                     </select>
                 </div>
 
-                {/* Списки */}
                 <div className="toolbar-group">
                     <MenuButton
                         onClick={() => editor.chain().focus().toggleBulletList().run()}

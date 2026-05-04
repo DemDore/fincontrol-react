@@ -30,6 +30,8 @@ const Analytics = () => {
     const [frequentTransactions, setFrequentTransactions] = useState([]);
     const [comparison, setComparison] = useState(null);
     const [stats, setStats] = useState({ income: 0, expense: 0, count: 0 });
+    const [previousPeriodData, setPreviousPeriodData] = useState({ income: 0, expense: 0, savings: 0, count: 0 });
+    const [loading, setLoading] = useState(true);
     const { formatCurrency } = useCurrency();
 
     useEffect(() => {
@@ -43,15 +45,22 @@ const Analytics = () => {
         }
     }, [transactions, period]);
 
-    const loadData = () => {
-        const allTransactions = getTransactions();
-        setTransactions(allTransactions);
+    const loadData = async () => {
+        try {
+            setLoading(true);
+            const allTransactions = await getTransactions();
+            setTransactions(allTransactions);
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const updateChartData = () => {
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth();
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth();
         
         switch(period) {
             case 'month':
@@ -92,38 +101,52 @@ const Analytics = () => {
         const frequent = getTransactionFrequency(filtered);
         setFrequentTransactions(frequent);
         
-        const now = new Date();
+        // Расчёт данных за предыдущий период для сравнения
+        const currentDate = new Date();
         let previousStart = new Date();
-        let currentStart = new Date();
-        
+        let previousEnd = new Date();
+
         switch(period) {
             case 'month':
-                currentStart.setMonth(now.getMonth() - 1);
-                previousStart.setMonth(now.getMonth() - 2);
+                previousStart.setMonth(currentDate.getMonth() - 2);
+                previousEnd.setMonth(currentDate.getMonth() - 1);
                 break;
             case 'quarter':
-                currentStart.setMonth(now.getMonth() - 3);
-                previousStart.setMonth(now.getMonth() - 6);
+                previousStart.setMonth(currentDate.getMonth() - 6);
+                previousEnd.setMonth(currentDate.getMonth() - 3);
                 break;
             case 'year':
-                currentStart.setFullYear(now.getFullYear() - 1);
-                previousStart.setFullYear(now.getFullYear() - 2);
+                previousStart.setFullYear(currentDate.getFullYear() - 2);
+                previousEnd.setFullYear(currentDate.getFullYear() - 1);
                 break;
             default:
-                currentStart = new Date(0);
                 previousStart = new Date(0);
+                previousEnd = new Date(0);
         }
+
+        const previousTransactions = transactions.filter(t => {
+            const date = new Date(t.date);
+            return date >= previousStart && date < previousEnd;
+        });
+
+        const previousIncome = previousTransactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+        const previousExpense = previousTransactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+        const previousSavings = previousIncome - previousExpense;
+
+        setPreviousPeriodData({
+            income: previousIncome,
+            expense: previousExpense,
+            savings: previousSavings,
+            count: previousTransactions.length
+        });
         
-        const currentPeriod = transactions.filter(t => new Date(t.date) >= currentStart);
-        const previousPeriod = transactions.filter(t => new Date(t.date) >= previousStart && new Date(t.date) < currentStart);
-        
-        const comparisonData = calculateComparison(transactions, currentPeriod, previousPeriod);
+        const comparisonData = calculateComparison(transactions, filtered, previousTransactions);
         setComparison(comparisonData);
     };
 
     const getChartTitle = () => {
-        const now = new Date();
-        const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
+        const currentDate = new Date();
+        const monthName = currentDate.toLocaleDateString('ru-RU', { month: 'long' });
         switch(period) {
             case 'month':
                 return `Динамика доходов и расходов за ${monthName}`;
@@ -136,136 +159,70 @@ const Analytics = () => {
         }
     };
 
-// Функция экспорта в CSV (профессиональный отчёт)
-const handleExportCSV = () => {
-    if (filteredTransactions.length === 0) {
-        alert('Нет данных для экспорта');
-        return;
-    }
-
-    const now = new Date();
-    const periodLabel = {
-        month: `${now.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}`,
-        quarter: `${Math.floor((now.getMonth() + 3) / 3)} квартал ${now.getFullYear()}`,
-        year: `${now.getFullYear()} год`,
-        all: 'всё время'
-    }[period] || 'выбранный период';
-
-    // 1. РАССЧИТЫВАЕМ СТАТИСТИКУ
-    const totalIncome = filteredTransactions
-        .filter(t => t.type === 'income')
-        .reduce((s, t) => s + t.amount, 0);
-    const totalExpense = filteredTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((s, t) => s + t.amount, 0);
-    const balance = totalIncome - totalExpense;
-    const avgIncome = filteredTransactions.filter(t => t.type === 'income').length || 1;
-    const avgExpense = filteredTransactions.filter(t => t.type === 'expense').length || 1;
-    const avgIncomeAmount = totalIncome / avgIncome;
-    const avgExpenseAmount = totalExpense / avgExpense;
-    const maxTransaction = filteredTransactions.reduce((max, t) => t.amount > max.amount ? t : max, { amount: 0, type: '', category: '' });
-    const minTransaction = filteredTransactions.reduce((min, t) => t.amount < min.amount ? t : min, { amount: Infinity, type: '', category: '' });
-
-    // 2. ГРУППИРОВКА ПО КАТЕГОРИЯМ
-    const incomeByCategory = {};
-    const expenseByCategory = {};
-    filteredTransactions.forEach(t => {
-        const catName = t.category?.replace(/^[^\s]+\s/, '') || 'Другое';
-        if (t.type === 'income') {
-            incomeByCategory[catName] = (incomeByCategory[catName] || 0) + t.amount;
-        } else {
-            expenseByCategory[catName] = (expenseByCategory[catName] || 0) + t.amount;
+    const handleExportCSV = () => {
+        if (filteredTransactions.length === 0) {
+            alert('Нет данных для экспорта');
+            return;
         }
-    });
 
-    // 3. ФОРМИРУЕМ СОДЕРЖИМОЕ CSV
-    const rows = [];
+        const currentDate = new Date();
+        const periodLabel = {
+            month: `${currentDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}`,
+            quarter: `${Math.floor((currentDate.getMonth() + 3) / 3)} квартал ${currentDate.getFullYear()}`,
+            year: `${currentDate.getFullYear()} год`,
+            all: 'всё время'
+        }[period] || 'выбранный период';
 
-    // Заголовок отчёта
-    rows.push(['"ФИНАНСОВЫЙ ОТЧЁТ"']);
-    rows.push([`"Период: ${periodLabel}"`]);
-    rows.push([`"Дата формирования: ${now.toLocaleDateString('ru-RU')} ${now.toLocaleTimeString('ru-RU')}"`]);
-    rows.push([]); // пустая строка
+        const totalIncome = filteredTransactions
+            .filter(t => t.type === 'income')
+            .reduce((s, t) => s + t.amount, 0);
+        const totalExpense = filteredTransactions
+            .filter(t => t.type === 'expense')
+            .reduce((s, t) => s + t.amount, 0);
+        const balance = totalIncome - totalExpense;
 
-    // Сводка
-    rows.push(['"СВОДКА"']);
-    rows.push(['"Показатель"', '"Сумма"' ]);
-    rows.push(['"Всего доходов"', totalIncome.toFixed(2)]);
-    rows.push(['"Всего расходов"', totalExpense.toFixed(2)]);
-    rows.push(['"Чистый баланс"', balance.toFixed(2)]);
-    rows.push(['"Количество транзакций"', filteredTransactions.length]);
-    rows.push(['"Средний доход"', avgIncomeAmount.toFixed(2)]);
-    rows.push(['"Средний расход"', avgExpenseAmount.toFixed(2)]);
-    if (maxTransaction.amount > 0) {
-        rows.push(['"Максимальная операция"', `${maxTransaction.amount.toFixed(2)} (${maxTransaction.category?.replace(/^[^\s]+\s/, '') || '-'})`]);
+        const rows = [];
+        rows.push(['"ФИНАНСОВЫЙ ОТЧЁТ"']);
+        rows.push([`"Период: ${periodLabel}"`]);
+        rows.push([`"Дата формирования: ${currentDate.toLocaleDateString('ru-RU')} ${currentDate.toLocaleTimeString('ru-RU')}"`]);
+        rows.push([]);
+        rows.push(['"СВОДКА"']);
+        rows.push(['"Показатель"', '"Сумма"']);
+        rows.push(['"Всего доходов"', totalIncome.toFixed(2)]);
+        rows.push(['"Всего расходов"', totalExpense.toFixed(2)]);
+        rows.push(['"Чистый баланс"', balance.toFixed(2)]);
+        rows.push(['"Количество транзакций"', filteredTransactions.length]);
+        rows.push([]);
+        rows.push(['"ДЕТАЛЬНЫЙ СПИСОК ТРАНЗАКЦИЙ"']);
+        rows.push(['"Дата"', '"Тип"', '"Категория"', '"Описание"', '"Сумма"']);
+        
+        filteredTransactions
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .forEach(t => {
+                rows.push([
+                    `"${new Date(t.date).toLocaleDateString('ru-RU')}"`,
+                    `"${t.type === 'income' ? 'Доход' : 'Расход'}"`,
+                    `"${t.category?.replace(/^[^\s]+\s/, '') || '-'}"`,
+                    `"${t.description || '-'}"`,
+                    t.amount.toFixed(2)
+                ]);
+            });
+
+        const csvContent = rows.map(row => row.join(';')).join('\n');
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute('download', `fincontrol_report_${period}_${currentDate.toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    if (loading) {
+        return <div className="content analytics-page">Загрузка аналитики...</div>;
     }
-    if (minTransaction.amount < Infinity) {
-        rows.push(['"Минимальная операция"', `${minTransaction.amount.toFixed(2)} (${minTransaction.category?.replace(/^[^\s]+\s/, '') || '-'})`]);
-    }
-    rows.push([]);
-
-    // Доходы по категориям
-    rows.push(['"ДОХОДЫ ПО КАТЕГОРИЯМ"']);
-    rows.push(['"Категория"', '"Сумма"', '"Доля от всех доходов"']);
-    const totalIncomeAmount = Object.values(incomeByCategory).reduce((a, b) => a + b, 0);
-    Object.entries(incomeByCategory)
-        .sort((a, b) => b[1] - a[1])
-        .forEach(([cat, sum]) => {
-            const percent = totalIncomeAmount > 0 ? ((sum / totalIncomeAmount) * 100).toFixed(1) : 0;
-            rows.push([`"${cat}"`, sum.toFixed(2), `"${percent}%"`]);
-        });
-    if (Object.keys(incomeByCategory).length === 0) {
-        rows.push(['"Нет данных"', '0', '0%']);
-    }
-    rows.push([]);
-
-    // Расходы по категориям
-    rows.push(['"РАСХОДЫ ПО КАТЕГОРИЯМ"']);
-    rows.push(['"Категория"', '"Сумма"', '"Доля от всех расходов"']);
-    const totalExpenseAmount = Object.values(expenseByCategory).reduce((a, b) => a + b, 0);
-    Object.entries(expenseByCategory)
-        .sort((a, b) => b[1] - a[1])
-        .forEach(([cat, sum]) => {
-            const percent = totalExpenseAmount > 0 ? ((sum / totalExpenseAmount) * 100).toFixed(1) : 0;
-            rows.push([`"${cat}"`, sum.toFixed(2), `"${percent}%"`]);
-        });
-    if (Object.keys(expenseByCategory).length === 0) {
-        rows.push(['"Нет данных"', '0', '0%']);
-    }
-    rows.push([]);
-
-    // Детальный список транзакций
-    rows.push(['"ДЕТАЛЬНЫЙ СПИСОК ТРАНЗАКЦИЙ"']);
-    rows.push(['"Дата"', '"Тип"', '"Категория"', '"Описание"', '"Сумма"']);
-    filteredTransactions
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .forEach(t => {
-            rows.push([
-                `"${new Date(t.date).toLocaleDateString('ru-RU')}"`,
-                `"${t.type === 'income' ? 'Доход' : 'Расход'}"`,
-                `"${t.category?.replace(/^[^\s]+\s/, '') || '-'}"`,
-                `"${t.description || '-'}"`,
-                t.amount.toFixed(2)
-            ]);
-        });
-
-    // Подвал отчёта
-    rows.push([]);
-    rows.push(['"Отчёт сгенерирован автоматически в FinControl"']);
-    rows.push(['"Данные носят информационный характер."']);
-
-    // Преобразуем в CSV
-    const csvContent = rows.map(row => row.join(';')).join('\n');
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute('download', `fincontrol_report_${period}_${now.toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-};
 
     return (
         <div className="content analytics-page">
@@ -278,6 +235,7 @@ const handleExportCSV = () => {
                 income={stats.income}
                 expense={stats.expense}
                 transactionCount={stats.count}
+                previousPeriodData={previousPeriodData}
             />
 
             <div className="analytics-section full-width">

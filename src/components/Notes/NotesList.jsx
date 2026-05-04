@@ -20,11 +20,22 @@ const NotesList = () => {
         return tmp.textContent || tmp.innerText || '';
     };
 
+    const handleAddNote = async () => {
+        await addNote();
+    };
+
+    const handleDeleteNote = async (e, id) => {
+        e.stopPropagation();
+        if (confirm('Удалить заметку?')) {
+            await deleteNote(id);
+        }
+    };
+
     return (
         <div className="notes-list">
             <div className="notes-list-header">
                 <h2>📝 Мои заметки</h2>
-                <button className="btn-primary add-note-btn" onClick={addNote}>
+                <button className="btn-primary add-note-btn" onClick={handleAddNote}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <line x1="12" y1="5" x2="12" y2="19"/>
                         <line x1="5" y1="12" x2="19" y2="12"/>
@@ -52,12 +63,7 @@ const NotesList = () => {
                                 <span className="note-date">{formatDate(note.updatedAt)}</span>
                                 <button 
                                     className="note-delete"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (confirm('Удалить заметку?')) {
-                                            deleteNote(note.id);
-                                        }
-                                    }}
+                                    onClick={(e) => handleDeleteNote(e, note.id)}
                                 >
                                     🗑️
                                 </button>

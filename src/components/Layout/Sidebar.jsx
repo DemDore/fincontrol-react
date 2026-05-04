@@ -1,43 +1,25 @@
 import { NavLink } from 'react-router-dom';
-import { useProfile } from '../../context/ProfileContext';
-import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = () => {
-    const { profile } = useProfile();
-    const [forceUpdate, setForceUpdate] = useState(0);
-    
-const navItems = [
-    { path: '/', icon: '📊', label: 'Главная' },
-    { path: '/transactions', icon: '💸', label: 'Транзакции' },
-    { path: '/categories', icon: '🏷️', label: 'Категории' },
-    { path: '/analytics', icon: '📈', label: 'Аналитика' },
-    { path: '/budgets', icon: '🎯', label: 'Бюджеты' },
-    { path: '/loan-calculator', icon: '🏦', label: 'Кредитный калькулятор' },
-    { path: '/notes', icon: '📝', label: 'Заметки' },      
-    { path: '/settings', icon: '⚙️', label: 'Настройки' },
-];
+    const { user, logout } = useAuth();
 
-    useEffect(() => {
-        const handleProfileUpdate = () => {
-            setForceUpdate(Date.now());
-        };
-        window.addEventListener('profileUpdated', handleProfileUpdate);
-        return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
-    }, []);
+    const navItems = [
+        { path: '/', icon: '📊', label: 'Главная' },
+        { path: '/transactions', icon: '💸', label: 'Транзакции' },
+        { path: '/categories', icon: '🏷️', label: 'Категории' },
+        { path: '/analytics', icon: '📈', label: 'Аналитика' },
+        { path: '/budgets', icon: '🎯', label: 'Бюджеты' },
+        { path: '/loan-calculator', icon: '🏦', label: 'Кредитный калькулятор' },
+        { path: '/notes', icon: '📝', label: 'Заметки' },      
+        { path: '/settings', icon: '⚙️', label: 'Настройки' },
+    ];
 
-    if (!profile) {
-        return (
-            <aside className="sidebar">
-                <div className="logo">
-                    <span className="logo-icon">💰</span>
-                    <span className="logo-text">FinControl</span>
-                </div>
-                <div className="user-section">
-                    <div className="user-info">Загрузка...</div>
-                </div>
-            </aside>
-        );
-    }
+    const handleLogout = () => {
+        if (confirm('Вы уверены, что хотите выйти?')) {
+            logout();
+        }
+    };
 
     return (
         <aside className="sidebar">
@@ -61,23 +43,15 @@ const navItems = [
             
             <div className="user-section">
                 <div className="user-info">
-                    <div className="user-avatar">{profile.avatar}</div>
+                    <div className="user-avatar">👤</div>
                     <div className="user-details">
-                        <div className="user-name">{profile.name}</div>
-                        <div className="user-email">{profile.email}</div>
+                        <div className="user-name">{user?.name || 'Пользователь'}</div>
+                        <div className="user-email">{user?.email || ''}</div>
                     </div>
                     <button 
                         className="logout-btn" 
                         title="Выйти"
-                        onClick={() => {
-                            if (confirm('Вы уверены, что хотите выйти?')) {
-                                // В демо-режиме просто показываем сообщение
-                                alert('Демо-режим: выход не требует авторизации');
-                                // При желании можно очистить данные сессии
-                                // localStorage.clear();
-                                // window.location.reload();
-                            }
-                        }}
+                        onClick={handleLogout}
                     >
                         🚪
                     </button>

@@ -1,9 +1,14 @@
 import { useCurrency } from '../../hooks/useCurrency';
 
-const StatsCards = ({ income, expense, transactionCount }) => {
+const StatsCards = ({ income, expense, transactionCount, previousPeriodData = {} }) => {
     const { formatCurrency } = useCurrency();
     const savings = income - expense;
     const savingsPercent = income > 0 ? (savings / income) * 100 : 0;
+    
+    // Расчёт изменений по сравнению с прошлым периодом
+    const incomeChange = previousPeriodData.income ? ((income - previousPeriodData.income) / previousPeriodData.income) * 100 : 0;
+    const expenseChange = previousPeriodData.expense ? ((expense - previousPeriodData.expense) / previousPeriodData.expense) * 100 : 0;
+    const savingsChange = previousPeriodData.savings ? ((savings - previousPeriodData.savings) / previousPeriodData.savings) * 100 : 0;
 
     const cards = [
         {
@@ -11,31 +16,31 @@ const StatsCards = ({ income, expense, transactionCount }) => {
             value: income,
             icon: '📈',
             color: 'income',
-            change: '+8%',
-            changePositive: true
+            change: incomeChange,
+            changePositive: incomeChange >= 0
         },
         {
             title: 'Расходы',
             value: expense,
             icon: '💸',
             color: 'expense',
-            change: '-2%',
-            changePositive: false
+            change: expenseChange,
+            changePositive: expenseChange <= 0
         },
         {
             title: 'Сбережения',
             value: savings,
             icon: '💰',
             color: 'savings',
-            change: `+${savingsPercent.toFixed(1)}%`,
-            changePositive: true
+            change: savingsPercent,
+            changePositive: savingsPercent >= 0
         },
         {
             title: 'Транзакций',
             value: transactionCount,
             icon: '📊',
             color: 'transactions',
-            change: '+15%',
+            change: previousPeriodData.count ? ((transactionCount - previousPeriodData.count) / previousPeriodData.count) * 100 : 0,
             changePositive: true,
             isCount: true
         }
@@ -53,7 +58,7 @@ const StatsCards = ({ income, expense, transactionCount }) => {
                         {card.isCount ? card.value : formatCurrency(card.value)}
                     </div>
                     <div className={`stat-change ${card.changePositive ? 'positive' : 'negative'}`}>
-                        {card.change} vs прошлый месяц
+                        {card.change > 0 ? '▲' : card.change < 0 ? '▼' : '•'} {Math.abs(card.change).toFixed(1)}% vs прошлый месяц
                     </div>
                 </div>
             ))}

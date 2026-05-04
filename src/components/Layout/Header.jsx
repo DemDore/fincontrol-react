@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useProfile } from '../../context/ProfileContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 import NotificationDropdown from './NotificationDropdown';
 
 const Header = () => {
-    const { profile } = useProfile();
+    const { user } = useAuth();
     const { unreadCount, toggleDropdown, isOpen, requestPermission } = useNotifications();
     const [currentDate, setCurrentDate] = useState('');
 
@@ -12,8 +12,6 @@ const Header = () => {
         const options = { year: 'numeric', month: 'long' };
         const date = new Date().toLocaleDateString('ru-RU', options);
         setCurrentDate(date.charAt(0).toUpperCase() + date.slice(1));
-        
-        // Запрашиваем разрешение на уведомления при загрузке
         requestPermission();
     }, []);
 
@@ -23,7 +21,7 @@ const Header = () => {
                 <div className="header-left">
                     <div className="greeting">
                         <span className="greeting-text">Здравствуйте,</span>
-                        <span className="greeting-name">{profile.name}</span>
+                        <span className="greeting-name">{user?.name || 'Пользователь'}</span>
                     </div>
                 </div>
                 
@@ -46,10 +44,9 @@ const Header = () => {
                         {unreadCount > 0 && (
                             <span className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>
                         )}
-                        
                     </button>
                     
-                    <div className="avatar">{profile.avatar}</div>
+                    <div className="avatar">👤</div>
                 </div>
             </header>
             

@@ -4,18 +4,16 @@ import { useCurrency } from '../hooks/useCurrency';
 import { useNotifications } from '../context/NotificationContext';
 import { 
     getBudgets, 
-    saveBudgets, 
-    getOverallBudget,
-    saveOverallBudget,
-    updateBudgetsSpent,
     addBudget,
     updateBudget,
     deleteBudget,
+    getOverallBudget,
+    saveOverallBudget,
+    updateBudgetsSpent,
     calculateOverallStats,
     getCurrentMonth,
     getCurrentYear
 } from '../utils/budgetUtils';
-import { setUpdateBudgetsCallback } from '../utils/storage';
 import OverallBudgetCard from '../components/Budgets/OverallBudgetCard';
 import BudgetTable from '../components/Budgets/BudgetTable';
 import BudgetModal from '../components/Budgets/BudgetModal';
@@ -32,77 +30,80 @@ const Budgets = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBudget, setEditingBudget] = useState(null);
     const [dismissedAlerts, setDismissedAlerts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Функция для обновления всех данных
-    const refreshAllData = () => {
-        const allTransactions = getTransactions();
-        setTransactions(allTransactions);
-        
-        const savedBudgets = getBudgets();
-        const updatedBudgets = updateBudgetsSpent(savedBudgets, allTransactions);
-        setBudgets(updatedBudgets);
-        saveBudgets(updatedBudgets);
-        
-        const savedOverall = getOverallBudget();
-        setOverallBudget(savedOverall);
-        
-        updateStats(updatedBudgets, savedOverall);
-        
-        // Проверка бюджетов для уведомлений
-        const currentMonth = getCurrentMonth();
-        const currentYear = getCurrentYear();
-        const currentBudgets = updatedBudgets.filter(b => 
-            b.month === currentMonth && b.year === currentYear
-        );
-        
-        currentBudgets.forEach(budget => {
-            const percent = (budget.spent / budget.budget) * 100;
+    const refreshAllData = async () => {
+        try {
+            setLoading(true);
+            const allTransactions = await getTransactions();
+            setTransactions(allTransactions);
             
-            if (budget.spent > budget.budget) {
+            const savedBudgets = await getBudgets();
+            const updatedBudgets = await updateBudgetsSpent(savedBudgets, allTransactions);
+            setBudgets(updatedBudgets);
+            
+            const savedOverall = await getOverallBudget();
+            setOverallBudget(savedOverall);
+            
+            updateStats(updatedBudgets, savedOverall);
+            
+            // Проверка бюджетов для уведомлений
+            const currentMonth = getCurrentMonth();
+            const currentYear = getCurrentYear();
+            const currentBudgets = updatedBudgets.filter(b => 
+                b.month === currentMonth && b.year === currentYear
+            );
+            
+            currentBudgets.forEach(budget => {
+                const percent = (budget.spent / budget.budget) * 100;
+                
+                if (budget.spent > budget.budget) {
+                    addNotification(
+                        '⚠️ Превышение бюджета',
+                        `Бюджет "${budget.category}" превышен на ${Math.round(budget.spent - budget.budget)} ₽`,
+                        'danger'
+                    );
+                } else if (percent >= 80) {
+                    addNotification(
+                        '⚠️ Внимание!',
+                        `Бюджет "${budget.category}" использован на ${Math.round(percent)}%`,
+                        'warning'
+                    );
+                }
+            });
+            
+            const totalSpent = updatedBudgets.reduce((sum, b) => sum + b.spent, 0);
+            const overallPercent = (totalSpent / savedOverall) * 100;
+            if (totalSpent > savedOverall) {
                 addNotification(
-                    '⚠️ Превышение бюджета',
-                    `Бюджет "${budget.category}" превышен на ${Math.round(budget.spent - budget.budget)} ₽`,
+                    '📊 Превышение общего бюджета',
+                    `Общий бюджет превышен на ${Math.round(totalSpent - savedOverall)} ₽`,
                     'danger'
                 );
-            } else if (percent >= 80) {
+            } else if (overallPercent >= 80) {
                 addNotification(
-                    '⚠️ Внимание!',
-                    `Бюджет "${budget.category}" использован на ${Math.round(percent)}%`,
+                    '📊 Внимание!',
+                    `Общий бюджет использован на ${Math.round(overallPercent)}%`,
                     'warning'
                 );
             }
-        });
-        
-        const totalSpent = updatedBudgets.reduce((sum, b) => sum + b.spent, 0);
-        const overallPercent = (totalSpent / savedOverall) * 100;
-        if (totalSpent > savedOverall) {
-            addNotification(
-                '📊 Превышение общего бюджета',
-                `Общий бюджет превышен на ${Math.round(totalSpent - savedOverall)} ₽`,
-                'danger'
-            );
-        } else if (overallPercent >= 80) {
-            addNotification(
-                '📊 Внимание!',
-                `Общий бюджет использован на ${Math.round(overallPercent)}%`,
-                'warning'
-            );
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    // Регистрируем callback для обновления при изменении транзакций
     useEffect(() => {
-        setUpdateBudgetsCallback(refreshAllData);
         refreshAllData();
         
-        // Слушаем событие обновления транзакций
         const handleTransactionsUpdate = () => {
             refreshAllData();
         };
+        
         window.addEventListener('transactionsUpdated', handleTransactionsUpdate);
         
         return () => {
-            setUpdateBudgetsCallback(null);
             window.removeEventListener('transactionsUpdated', handleTransactionsUpdate);
         };
     }, []);
@@ -112,21 +113,26 @@ const Budgets = () => {
         setStats(newStats);
     };
 
-    const handleOverallBudgetEdit = (newBudget) => {
-        saveOverallBudget(newBudget);
+    const handleOverallBudgetEdit = async (newBudget) => {
+        await saveOverallBudget(newBudget);
         setOverallBudget(newBudget);
         updateStats(budgets, newBudget);
     };
 
-    const handleSaveBudget = (budgetData) => {
-        if (editingBudget) {
-            updateBudget(editingBudget.id, budgetData);
-        } else {
-            addBudget(budgetData);
+    const handleSaveBudget = async (budgetData) => {
+        try {
+            if (editingBudget) {
+                await updateBudget(editingBudget.id, budgetData);
+            } else {
+                await addBudget(budgetData);
+            }
+            await refreshAllData();
+            setIsModalOpen(false);
+            setEditingBudget(null);
+        } catch (error) {
+            console.error('Ошибка сохранения бюджета:', error);
+            alert('Ошибка при сохранении бюджета');
         }
-        refreshAllData();
-        setIsModalOpen(false);
-        setEditingBudget(null);
     };
 
     const handleEditBudget = (budget) => {
@@ -134,10 +140,15 @@ const Budgets = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteBudget = (id) => {
+    const handleDeleteBudget = async (id) => {
         if (confirm('Удалить этот бюджет?')) {
-            deleteBudget(id);
-            refreshAllData();
+            try {
+                await deleteBudget(id);
+                await refreshAllData();
+            } catch (error) {
+                console.error('Ошибка удаления бюджета:', error);
+                alert('Ошибка при удалении бюджета');
+            }
         }
     };
 
@@ -152,6 +163,10 @@ const Budgets = () => {
     const visibleAlerts = filteredBudgets.filter(b => 
         b.spent > b.budget && !dismissedAlerts.includes(b.id)
     );
+
+    if (loading) {
+        return <div className="content budgets-page">Загрузка бюджетов...</div>;
+    }
 
     return (
         <div className="content budgets-page">

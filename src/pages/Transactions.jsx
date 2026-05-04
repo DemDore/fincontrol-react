@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTransactions, saveTransactions, deleteTransaction } from '../utils/storage';
+import { getTransactions, saveTransactions, deleteTransaction, addTransaction, updateTransaction } from '../utils/storage';
 import { getExpenseCategoryNames, getIncomeCategoryNames } from '../utils/categoriesUtils';
 import { useCurrency } from '../hooks/useCurrency';
 import TransactionFilters from '../components/Transactions/TransactionFilters';
@@ -24,6 +24,7 @@ const Transactions = () => {
     const [editingTransaction, setEditingTransaction] = useState(null);
     const [expenseCategories, setExpenseCategories] = useState([]);
     const [incomeCategories, setIncomeCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         loadTransactions();
@@ -41,16 +42,29 @@ const Transactions = () => {
         applyFilters();
     }, [transactions, filters]);
 
-    const loadTransactions = () => {
-        setTransactions(getTransactions());
+    const loadTransactions = async () => {
+        try {
+            setLoading(true);
+            const allTransactions = await getTransactions();
+            setTransactions(allTransactions);
+        } catch (error) {
+            console.error('Ошибка загрузки транзакций:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const loadCategories = () => {
-        setExpenseCategories(getExpenseCategoryNames());
-        setIncomeCategories(getIncomeCategoryNames());
+    const loadCategories = async () => {
+        try {
+            const expense = await getExpenseCategoryNames();
+            const income = await getIncomeCategoryNames();
+            setExpenseCategories(expense);
+            setIncomeCategories(income);
+        } catch (error) {
+            console.error('Ошибка загрузки категорий:', error);
+        }
     };
 
-    // Функция для фильтрации по периоду
     const filterByPeriod = (transaction) => {
         const date = new Date(transaction.date);
         const now = new Date();
@@ -82,20 +96,16 @@ const Transactions = () => {
     const applyFilters = () => {
         let filteredData = [...transactions];
         
-        // Фильтр по типу
         if (filters.type !== 'all') {
             filteredData = filteredData.filter(t => t.type === filters.type);
         }
         
-        // Фильтр по категории
         if (filters.category !== 'all') {
             filteredData = filteredData.filter(t => t.category === filters.category);
         }
         
-        // Фильтр по периоду
         filteredData = filteredData.filter(t => filterByPeriod(t));
         
-        // Фильтр по поиску
         if (filters.search) {
             const searchLower = filters.search.toLowerCase();
             filteredData = filteredData.filter(t => 
@@ -108,28 +118,21 @@ const Transactions = () => {
         setFilteredTransactions(filteredData);
     };
 
-    const handleSave = (transactionData) => {
-        let newTransactions;
-        
-        if (editingTransaction) {
-            newTransactions = transactions.map(t =>
-                t.id === editingTransaction.id
-                    ? { ...transactionData, id: t.id }
-                    : t
-            );
-        } else {
-            const newId = Math.max(0, ...transactions.map(t => t.id), 0) + 1;
-            newTransactions = [{ ...transactionData, id: newId }, ...transactions];
+    const handleSave = async (transactionData) => {
+        try {
+            if (editingTransaction) {
+                await updateTransaction(editingTransaction.id, transactionData);
+            } else {
+                await addTransaction(transactionData);
+            }
+            await loadTransactions();
+            setIsModalOpen(false);
+            setEditingTransaction(null);
+            window.dispatchEvent(new Event('transactionsUpdated'));
+        } catch (error) {
+            console.error('Ошибка сохранения транзакции:', error);
+            alert('Ошибка при сохранении транзакции');
         }
-        
-        saveTransactions(newTransactions);
-        setTransactions(newTransactions);
-        setIsModalOpen(false);
-        setEditingTransaction(null);
-        
-        // ========== ДОБАВИТЬ ЭТУ СТРОКУ ==========
-        window.dispatchEvent(new Event('transactionsUpdated'));
-        // ========================================
     };
 
     const handleEdit = (transaction) => {
@@ -137,12 +140,17 @@ const Transactions = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (confirm('Удалить эту транзакцию?')) {
-            deleteTransaction(id);
-            loadTransactions();
+            try {
+                await deleteTransaction(id);
+                await loadTransactions();
+                window.dispatchEvent(new Event('transactionsUpdated'));
+            } catch (error) {
+                console.error('Ошибка удаления транзакции:', error);
+                alert('Ошибка при удалении транзакции');
+            }
         }
-        window.dispatchEvent(new Event('transactionsUpdated'));
     };
 
     const handleResetFilters = () => {
@@ -165,6 +173,10 @@ const Transactions = () => {
     const totalExpense = filteredTransactions
         .filter(t => t.type === 'expense')
         .reduce((sum, t) => sum + t.amount, 0);
+
+    if (loading) {
+        return <div className="content">Загрузка транзакций...</div>;
+    }
 
     return (
         <div className="content">

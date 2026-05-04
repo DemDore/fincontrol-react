@@ -8,8 +8,8 @@ const Notes = () => {
     const { selectedNote, updateNote } = useNotes();
     const [localTitle, setLocalTitle] = useState('');
     const [localContent, setLocalContent] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
-    // Обновляем локальное состояние при смене заметки
     useEffect(() => {
         if (selectedNote) {
             setLocalTitle(selectedNote.title);
@@ -20,30 +20,19 @@ const Notes = () => {
     const handleTitleChange = (e) => {
         const newTitle = e.target.value;
         setLocalTitle(newTitle);
-        if (selectedNote) {
+        if (selectedNote && !isSaving) {
             updateNote(selectedNote.id, { title: newTitle });
         }
     };
 
     const handleContentChange = (content) => {
         setLocalContent(content);
-        if (selectedNote) {
+        if (selectedNote && !isSaving) {
+            setIsSaving(true);
             updateNote(selectedNote.id, { content });
+            setTimeout(() => setIsSaving(false), 100);
         }
     };
-
-    // Добавьте автосохранение при уходе со страницы
-    useEffect(() => {
-        const handleBeforeUnload = () => {
-            // Автоматически сохраняем при закрытии страницы
-            if (selectedNote && localContent !== selectedNote.content) {
-                updateNote(selectedNote.id, { content: localContent });
-            }
-        };
-        
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [selectedNote, localContent, updateNote]);
 
     return (
         <div className="content notes-page">

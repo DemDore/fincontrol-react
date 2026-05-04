@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCurrency } from '../../hooks/useCurrency';
+import { goalsAPI } from '../../services/api';
 
 const FinancialGoals = ({ transactions }) => {
     const { formatCurrency } = useCurrency();
@@ -9,41 +10,53 @@ const FinancialGoals = ({ transactions }) => {
     const [selectedGoal, setSelectedGoal] = useState(null);
     const [contributeAmount, setContributeAmount] = useState('');
     const [newGoal, setNewGoal] = useState({ name: '', target: '', deadline: '' });
+    const [loading, setLoading] = useState(true);
 
-    // Загрузка целей
     useEffect(() => {
-        const saved = localStorage.getItem('fincontrol_goals');
-        if (saved) setGoals(JSON.parse(saved));
+        loadGoals();
     }, []);
 
-    // Сохранение целей
-    const saveGoals = (newGoals) => {
-        setGoals(newGoals);
-        localStorage.setItem('fincontrol_goals', JSON.stringify(newGoals));
+    const loadGoals = async () => {
+        try {
+            setLoading(true);
+            const saved = await goalsAPI.getAll();
+            setGoals(saved);
+        } catch (error) {
+            console.error('Ошибка загрузки целей:', error);
+            setGoals([]);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Расчёт баланса и денег в целях
+    const saveGoals = async (newGoals) => {
+        // Эта функция больше не нужна, используем API напрямую
+    };
+
     const totalIncome = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
     const totalExpense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
     const balance = totalIncome - totalExpense;
     const totalInGoals = goals.reduce((sum, goal) => sum + goal.saved, 0);
     const freeMoney = balance - totalInGoals;
 
-    // Добавление цели
-    const addGoal = () => {
+    const addGoal = async () => {
         if (!newGoal.name || !newGoal.target || !newGoal.deadline) return;
-        saveGoals([...goals, { 
-            id: Date.now(), 
-            ...newGoal, 
-            target: parseFloat(newGoal.target),
-            saved: 0 
-        }]);
-        setNewGoal({ name: '', target: '', deadline: '' });
-        setShowAddGoal(false);
+        try {
+            await goalsAPI.create({ 
+                ...newGoal, 
+                target: parseFloat(newGoal.target),
+                saved: 0 
+            });
+            await loadGoals();
+            setNewGoal({ name: '', target: '', deadline: '' });
+            setShowAddGoal(false);
+        } catch (error) {
+            console.error('Ошибка добавления цели:', error);
+            alert('Ошибка при создании цели');
+        }
     };
 
-    // Пополнение цели
-    const contributeToGoal = () => {
+    const contributeToGoal = async () => {
         if (!contributeAmount || contributeAmount <= 0) return;
         const amount = parseFloat(contributeAmount);
         
@@ -52,35 +65,48 @@ const FinancialGoals = ({ transactions }) => {
             return;
         }
         
-        const updatedGoals = goals.map(goal => {
-            if (goal.id === selectedGoal.id) {
-                const newSaved = Math.min(goal.saved + amount, goal.target);
-                return { ...goal, saved: newSaved };
-            }
-            return goal;
-        });
-        
-        saveGoals(updatedGoals);
-        setShowContributeModal(false);
-        setContributeAmount('');
-        setSelectedGoal(null);
-        
-        alert(`✅ ${formatCurrency(amount)} добавлено в цель "${selectedGoal.name}"`);
-    };
-
-    // Удаление цели
-    const deleteGoal = (id) => {
-        if (confirm('Удалить эту цель?')) {
-            saveGoals(goals.filter(g => g.id !== id));
+        try {
+            const newSaved = Math.min(selectedGoal.saved + amount, selectedGoal.target);
+            await goalsAPI.update(selectedGoal.id, { saved: newSaved });
+            await loadGoals();
+            setShowContributeModal(false);
+            setContributeAmount('');
+            setSelectedGoal(null);
+            alert(`✅ ${formatCurrency(amount)} добавлено в цель "${selectedGoal.name}"`);
+        } catch (error) {
+            console.error('Ошибка пополнения цели:', error);
+            alert('Ошибка при пополнении цели');
         }
     };
 
-    // Открыть модалку пополнения
+    const deleteGoal = async (id) => {
+        if (confirm('Удалить эту цель?')) {
+            try {
+                await goalsAPI.delete(id);
+                await loadGoals();
+            } catch (error) {
+                console.error('Ошибка удаления цели:', error);
+                alert('Ошибка при удалении цели');
+            }
+        }
+    };
+
     const openContributeModal = (goal) => {
         setSelectedGoal(goal);
         setContributeAmount('');
         setShowContributeModal(true);
     };
+
+    if (loading) {
+        return (
+            <div className="financial-goals">
+                <div className="section-header">
+                    <h2>🎯 Финансовые цели</h2>
+                </div>
+                <div className="empty-goals">Загрузка целей...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="financial-goals">
@@ -91,7 +117,6 @@ const FinancialGoals = ({ transactions }) => {
                 </button>
             </div>
 
-            {/* Блок с балансами */}
             <div className="balances-info">
                 <div className="balance-item">
                     <span className="balance-label">💰 Баланс:</span>
